@@ -1,0 +1,22 @@
+{
+  "name": "Tiệm Trà Học Tập & Nhật Ký",
+  "short_name": "Tiệm Trà",
+  "description": "Nhật ký theo dõi học tập và phương pháp tập trung Pomodoro ủ trà thư giãn.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFFDF6",
+  "theme_color": "#2E5AA7",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "images/cup_black_icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/cup_black_icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

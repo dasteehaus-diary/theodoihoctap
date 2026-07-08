@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <title>Das TeeHaus & Tagebuch - Nhật ký & Học tập cổ điển</title>
+  <!-- Google Fonts: Playfair Display (Serif cổ điển) & Quicksand (Không chân ấm áp) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Almendra:ital,wght@0,400;0,700;1,400;1,700&family=Dancing+Script:wght@400..700&family=Great+Vibes&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quicksand:wght@300;400;500;600;700&family=Special+Elite&family=UnifrakturMaguntia&family=Cormorant+Garamond:wght@400;600;700&family=Italiana&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lottie Player CDN -->
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <!-- JSZip & ePub.js CDNs for eBook reading -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Parchment Paper Grain Overlay -->
+  <div class="parchment-overlay"></div>
+  
+  <!-- Interactive Background Canvas Particles -->
+  <canvas id="bg-particle-canvas"></canvas>
+
+  <!-- Welcome Quill-Ink Greeting Letter -->
+  <div id="welcome-quill-letter" class="welcome-letter-overlay hidden" onclick="closeWelcomeLetter()">
+    <div class="welcome-letter-card">
+      <div class="letter-ink-quill">✒️</div>
+      <div class="letter-body" id="welcome-letter-content">
+        <!-- Welcoming greeting text in German & Vietnamese -->
+      </div>
+      <div style="text-align:center; margin-top:1.5rem; font-size:0.75rem; color:var(--text-muted); font-style:italic;">Nhấp vào thư để đóng</div>
+    </div>
+  </div>
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i data-lucide="coffee"></i>
+          <span>Das TeeHaus</span>
+        </div>
+        <p class="logo-sub">Tagebuch & Focus</p>
+      </div>
+
+      <nav class="sidebar-menu">
+        <button class="menu-item active" data-tab="dashboard">
+          <i data-lucide="home"></i>
+          <span>Phòng Trà Lịch Sử</span>
+        </button>
+        <button class="menu-item" data-tab="timer">
+          <i data-lucide="hourglass"></i>
+          <span>Ủ Trà & Tập Trung</span>
+        </button>
+        <button class="menu-item" data-tab="diary">
+          <i data-lucide="scroll"></i>
+          <span>Nhật Ký Niêm Phong</span>
+        </button>
+        <button class="menu-item" data-tab="reading">
+          <i data-lucide="book-open"></i>
+          <span>Góc Đọc Lese-Ecke</span>
+        </button>
+        <button class="menu-item" data-tab="analytics">
+          <i data-lucide="library"></i>
+          <span>Thống Kê Lưu Trữ</span>
+        </button>
+        <button class="menu-item" data-tab="settings">
+          <i data-lucide="store"></i>
+          <span>Tiệm Trà & Cài Đặt</span>
+        </button>
+      </nav>
+      
+
+      <!-- Lazy Sleeping & Stretching Cat Widget -->
+      <div class="sidebar-cat-wrapper" id="sidebar-cat">
+        <div class="cat-container sleeping" id="cat-container-sprite">
+          <!-- Sleeping Cat SVG (Giỏ mây phủ hoa cúc dại) -->
+          <svg viewBox="0 0 100 60" class="cat-svg cat-sleep-svg">
+            <!-- Woven Basket (Giỏ mây) -->
+            <ellipse cx="50" cy="46" rx="32" ry="10" fill="#cca05a" stroke="#8b5a2b" stroke-width="1.5" />
+            <path d="M 18 46 Q 50 58 82 46" fill="none" stroke="#5c3e29" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.7" />
+            <path d="M 22 43 C 35 48, 65 48, 78 43" fill="none" stroke="#5c3e29" stroke-width="1" opacity="0.5" />
+            
+            <!-- Sleeping Cat Inside -->
+            <!-- Tail -->
+            <path d="M 68 38 C 75 38, 78 30, 74 24 C 72 20, 67 24, 68 28" fill="none" stroke="var(--text-muted)" stroke-width="3.5" stroke-linecap="round" class="cat-tail"/>
+            <!-- Body -->
+            <ellipse cx="48" cy="38" rx="20" ry="12" fill="var(--text-muted)"/>
+            <!-- Head -->
+            <circle cx="36" cy="32" r="10" fill="var(--text-muted)"/>
+            <!-- Ears -->
+            <polygon points="28,26 30,16 37,24" fill="var(--text-muted)"/>
+            <polygon points="38,24 43,16 44,26" fill="var(--text-muted)"/>
+            <!-- Sleeping / Glancing Eyes -->
+            <g id="cat-eyes-closed">
+              <path d="M 31 33 Q 32 34 33 33" fill="none" stroke="var(--bg-sidebar)" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M 37 33 Q 38 34 39 33" fill="none" stroke="var(--bg-sidebar)" stroke-width="1.2" stroke-linecap="round"/>
+            </g>
+            <g id="cat-eyes-open" class="hidden">
+              <circle cx="32" cy="32" r="2.2" fill="var(--bg-sidebar)"/>
+              <circle cx="32" cy="31.2" r="1.1" fill="#2c1a0e"/> <!-- Pupil looking up -->
+              <circle cx="38" cy="32" r="2.2" fill="var(--bg-sidebar)"/>
+              <circle cx="38" cy="31.2" r="1.1" fill="#2c1a0e"/> <!-- Pupil looking up -->
+            </g>
+            <!-- Nose -->
+            <polygon points="34,35 36,35 35,36" fill="#e8a7b5"/>
+            
+            <!-- Chamomile Flowers -->
+            <!-- Left flower -->
+            <g transform="translate(24, 44)">
+              <circle cx="0" cy="0" r="3" fill="#ffd54f"/>
+              <path d="M-5,0 L5,0 M0,-5 L0,5 M-3,-3 L3,3 M-3,3 L3,-3" stroke="#fff" stroke-width="1.5"/>
+            </g>
+            <!-- Right flower -->
+            <g transform="translate(76, 42)">
+              <circle cx="0" cy="0" r="3" fill="#ffd54f"/>
+              <path d="M-5,0 L5,0 M0,-5 L0,5 M-3,-3 L3,3 M-3,3 L3,-3" stroke="#fff" stroke-width="1.5"/>
+            </g>
+            <!-- Center flower -->
+            <g transform="translate(50, 48)">
+              <circle cx="0" cy="0" r="2.5" fill="#ffd54f"/>
+              <path d="M-4,0 L4,0 M0,-4 L0,4 M-2.5,-2.5 L2.5,2.5 M-2.5,2.5 L2.5,-2.5" stroke="#fff" stroke-width="1.2"/>
+            </g>
+
+            <!-- Butterfly (Cánh bướm bay qua) -->
+            <g transform="translate(78, 16)" class="cat-butterfly">
+              <path d="M 0 0 C -2 -3, -5 -2, -3 2 Q 0 0, 3 2 C 5 -2, 2 -3, 0 0" fill="#a0522d" />
+              <path d="M 0 0 C -1 -2, -3 -1, -2 1 Q 0 0, 2 1 C 3 -1, 1 -2, 0 0" fill="#d4a373" />
+            </g>
+
+            <!-- Sleeping Zzz -->
+            <text x="56" y="22" class="cat-zzz cat-zzz1">z</text>
+            <text x="64" y="15" class="cat-zzz cat-zzz2">Z</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="theme-toggle" class="theme-toggle-btn" title="Chuyển chế độ Sáng/Tối" style="display: none;">
+          <i data-lucide="moon" class="dark-icon"></i>
+          <i data-lucide="sun" class="light-icon"></i>
+          <span class="theme-text">Giao diện tối</span>
+        </button>
+        
+        <!-- Tea Points Display (Tee-Münzen Signature) -->
+        <div class="tea-points-widget" title="Đồng xu cổ tích lũy" style="display: flex; align-items: center; gap: 0.6rem; background: rgba(140, 90, 71, 0.08); padding: 0.5rem 0.8rem; border-radius: 20px; border: 1px dashed rgba(140, 90, 71, 0.25); margin: 0.75rem auto; width: fit-content; min-width: 100px; justify-content: center;">
+          <svg class="signature-coin-icon" viewBox="0 0 24 24" style="width:24px; height:24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); flex-shrink:0;">
+            <defs>
+              <linearGradient id="signatureCoinGradSidebar" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#df9b6d" />
+                <stop offset="50%" stop-color="#c27a4d" />
+                <stop offset="100%" stop-color="#9f572d" />
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="11" fill="url(#signatureCoinGradSidebar)" stroke="#804420" stroke-width="1.2"/>
+            <circle cx="12" cy="12" r="8.5" fill="none" stroke="#ffd2a1" stroke-dasharray="1.5,1.5" stroke-width="1" opacity="0.85"/>
+            <path d="M 12 6.5 C 9 9, 8 13.5, 12 16.5 C 16 13.5, 15 9, 12 6.5 Z" fill="#6e3310" opacity="0.85"/>
+            <path d="M 12 16.5 L 12 18.5" stroke="#6e3310" stroke-width="1" stroke-linecap="round"/>
+          </svg>
+          <span class="tea-points-count" id="nav-tea-points" style="font-family: var(--font-title); font-size: 1.25rem; font-weight: bold; color: var(--primary); line-height: 1;">0</span>
+        </div>
+
+        <!-- Streak Display -->
+        <div class="streak-widget">
+          <div class="streak-fire" id="streak-animation">
+            <i data-lucide="flame"></i>
+          </div>
+          <div class="streak-info">
+            <span class="streak-count" id="nav-streak-count">0</span>
+            <span class="streak-label">ngày liên tục</span>
+        </div>
+        
+        <!-- Streak Calendar (Kraft Paper Grid) -->
+        <div class="streak-grid-vintage" id="nav-streak-grid" style="margin-top: 0.5rem;"></div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Tab 1: Dashboard (Phòng Trà Lịch Sử) -->
+      <section id="dashboard-tab" class="tab-content active">
+        <header class="tab-header">
+          <div>
+            <h1>Guten Tag!</h1>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+              <p id="dashboard-quote" class="german-quote" style="margin-top: 0;">"Lernen là học tập..."</p>
+              <button id="btn-speak-quote" class="btn btn-secondary" style="width: 24px; height: 24px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer;" onclick="speakCurrentQuote()">
+                <i data-lucide="volume-2" style="width: 12px; height: 12px;"></i>
+              </button>
+            </div>
+          </div>
+          <div class="header-date" id="current-date-display">Thứ Hai, 06 Tháng 7, 2026</div>
+        </header>
+
+        <div class="dashboard-grid">
+          <!-- Left Column -->
+          <div class="dashboard-left">
+            <!-- Summary Stats Cards -->
+            <div class="stats-cards-container">
+              <div class="stat-card">
+                <div class="stat-icon brown">
+                  <i data-lucide="clock"></i>
+                </div>
+                <div class="stat-data">
+                  <span class="stat-value" id="dash-today-time">0m</span>
+                  <span class="stat-label">Học hôm nay</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon green">
+                  <i data-lucide="calendar"></i>
+                </div>
+                <div class="stat-data">
+                  <span class="stat-value" id="dash-week-time">0h 0m</span>
+                  <span class="stat-label">Học tuần này</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon amber">
+                  <i data-lucide="scroll"></i>
+                </div>
+                <div class="stat-data">
+                  <span class="stat-value" id="dash-diary-count">0</span>
+                  <span class="stat-label">Trang nhật ký</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Focus Goal Progress Card -->
+            <div class="card goal-card">
+              <div class="card-header">
+                <h3>Ấm Trà Mục Tiêu Hôm Nay</h3>
+                <span class="goal-target" id="dash-goal-text">Mục tiêu: 120 phút</span>
+              </div>
+              <div class="goal-progress-wrapper">
+                <div class="circular-progress">
+                  <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" class="bg"></circle>
+                    <circle cx="50" cy="50" r="45" class="progress" id="dash-goal-circle" stroke-dasharray="283" stroke-dashoffset="283"></circle>
+                  </svg>
+                  <div class="progress-text-container">
+                    <div id="dash-teapot-svg-container" style="margin-bottom: -5px; transition: transform 0.3s ease;"></div>
+                    <span class="progress-percent" id="dash-goal-percent">0%</span>
+                    <span class="progress-sub" id="dash-goal-minutes-left">Cần thêm 120m</span>
+                  </div>
+                </div>
+                <div class="goal-details">
+                  <div class="status-badge" id="dash-goal-badge">Đang ủ trà</div>
+                  <p class="goal-encouragement" id="dash-goal-encouragement">Hãy đun sôi nước và bắt đầu buổi học nào!</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chồng Sách Đọc Dở Trang Trí (Dashboard Book Stack) -->
+            <div id="dashboard-book-decor" class="dashboard-book-decor-container hidden" style="cursor: pointer; margin-top: 1.5rem;">
+              <!-- Dynamic book stack is rendered here via JS -->
+            </div>
+
+
+          </div>
+
+          <!-- Right Column -->
+          <div class="dashboard-right">
+            <!-- Quick To-Do Card -->
+            <div class="card todo-card">
+              <div class="card-header" style="flex-direction: column; align-items: stretch; gap: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3>Nhiệm Vụ Học Tập</h3>
+                  <button id="dash-add-todo-btn" class="btn btn-icon"><i data-lucide="plus"></i></button>
+                </div>
+                <!-- Todo Tabs -->
+                <div class="todo-tabs" style="display: flex; gap: 0.25rem; margin-top: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; overflow-x: auto;">
+                  <button class="todo-tab-btn active" data-tab="today" style="background: none; border: none; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; color: var(--primary); cursor: pointer; padding: 0.25rem 0.5rem; border-bottom: 2px solid var(--primary); white-space: nowrap;">Hôm nay</button>
+                  <button class="todo-tab-btn" data-tab="week" style="background: none; border: none; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; color: var(--text-muted); cursor: pointer; padding: 0.25rem 0.5rem; white-space: nowrap;">Tuần này</button>
+                  <button class="todo-tab-btn" data-tab="all" style="background: none; border: none; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; color: var(--text-muted); cursor: pointer; padding: 0.25rem 0.5rem; white-space: nowrap;">Tất cả</button>
+                </div>
+              </div>
+              <div class="todo-input-row hidden" id="dash-todo-input-row" style="flex-direction: column; gap: 0.75rem; border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 8px; background: var(--bg-sidebar); margin-bottom: 1rem;">
+                <input type="text" id="dash-new-todo-input" placeholder="Ghi chú việc cần làm..." style="width: 100%;">
+                
+                <div style="display: flex; gap: 0.5rem; width: 100%;">
+                  <select id="todo-input-subject" style="flex: 1; padding: 0.4rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-family: var(--font-body); font-weight: bold;">
+                    <!-- Dynamically loaded -->
+                  </select>
+                  
+                  <select id="todo-input-priority" style="width: 100px; padding: 0.4rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-family: var(--font-body); font-weight: bold;">
+                    <option value="1">⭐ (Thường)</option>
+                    <option value="2">⭐⭐ (Cao)</option>
+                    <option value="3">⭐⭐⭐ (Gấp)</option>
+                  </select>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                  <div style="display: flex; align-items: center; gap: 0.25rem;">
+                    <label for="todo-input-due" style="font-size: 0.75rem; color: var(--text-muted);">Hạn:</label>
+                    <input type="date" id="todo-input-due" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-family: var(--font-body);">
+                  </div>
+                  <button class="btn btn-primary btn-sm" id="dash-submit-todo-btn">Thêm</button>
+                </div>
+              </div>
+              <ul class="todo-list" id="dash-todo-list">
+                <!-- Dynamic Content -->
+              </ul>
+            </div>
+
+            <!-- Diary Streak / Mini Diary Box -->
+            <div class="card mini-diary-card">
+              <div class="card-header">
+                <h3>Niêm Phong Hôm Nay</h3>
+                <span class="status-dot" id="dash-diary-status-dot"></span>
+              </div>
+              <div class="mini-diary-content" id="dash-diary-status-box">
+                <p id="dash-diary-status-text">Hôm nay chị chưa viết nhật ký tiếng Đức.</p>
+                <button class="btn btn-primary" id="dash-write-now-btn">
+                  <i data-lucide="pen-tool"></i> Viết nhật ký
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 2: Focus & Timer (Ủ Trà & Tập Trung) -->
+      <section id="timer-tab" class="tab-content">
+        <header class="tab-header">
+          <div>
+            <h1>Ủ Trà & Tập Trung</h1>
+            <p class="german-quote">"Erfolg hat drei Buchstaben: TUN." (Thành công nằm ở hành động)</p>
+          </div>
+        </header>
+
+        <div class="timer-grid">
+          <!-- Timer Area -->
+          <div class="timer-left">
+            <div class="card timer-card">
+              <!-- Mode Selection -->
+              <div class="timer-modes">
+                <button class="timer-mode-btn active" data-mode="teabag">Chọn Túi Trà</button>
+                <button class="timer-mode-btn" data-mode="pomodoro">Pomodoro</button>
+                <button class="timer-mode-btn" data-mode="stopwatch">Stopwatch (Tự do)</button>
+              </div>
+
+              <!-- Subject Selection -->
+              <div class="timer-subject-select">
+                <label for="timer-subject"><i data-lucide="book-open"></i> Môn học:</label>
+                <select id="timer-subject">
+                </select>
+              </div>
+
+              <!-- Phase 1: Tea Bag Selection Grid -->
+              <div class="tea-bag-selection" id="tea-bag-selection">
+                <p class="selection-hint">Chọn một túi trà yêu thích — Wähle deinen Teebeutel:</p>
+                <div class="tea-bag-grid" id="tea-bag-grid">
+                  <!-- Dynamic: 8 tea bag cards rendered by JS -->
+                </div>
+              </div>
+
+              <!-- Phase 2: Brewing Animation Scene -->
+              <div class="brewing-scene hidden" id="brewing-scene">
+                <div class="brewing-stage" id="brewing-stage">
+                  <!-- Dynamic: Cup + tea bag + bubbles + steam rendered by JS -->
+                </div>
+              </div>
+
+              <!-- Timer Display -->
+              <div class="timer-display-main">
+                <div class="timer-display-flex">
+                  <div class="vintage-hourglass-container" id="vintage-hourglass-container">
+                    <svg viewBox="0 0 100 160" class="hourglass-svg">
+                      <defs>
+                        <!-- Retro Pixel Art Sand Pattern -->
+                        <pattern id="pixel-sand" width="4" height="4" patternUnits="userSpaceOnUse">
+                          <rect width="2" height="2" fill="#d4b285"/>
+                          <rect x="2" y="2" width="2" height="2" fill="#cca05a"/>
+                          <rect x="2" y="0" width="2" height="2" fill="#b0833e"/>
+                          <rect x="0" y="2" width="2" height="2" fill="#e5c89e"/>
+                        </pattern>
+                        
+                        <!-- Top bulb clip-path: y goes from 20 to 80, height goes from 0 to 60 -->
+                        <clipPath id="clip-top">
+                          <rect id="rect-clip-top" x="0" y="20" width="100" height="0" />
+                        </clipPath>
+                        
+                        <!-- Bottom bulb clip-path: y goes from 80 to 140, height goes from 0 to 60 -->
+                        <clipPath id="clip-bottom">
+                          <rect id="rect-clip-bottom" x="0" y="80" width="100" height="60" />
+                        </clipPath>
+                      </defs>
+                      
+                      <!-- Wooden bases (top and bottom) -->
+                      <rect class="hourglass-wood" x="12" y="10" width="76" height="8" rx="2.5" fill="var(--hourglass-wood, #5c3e29)" stroke="var(--hourglass-border, #2c1a0e)" stroke-width="1.2" />
+                      <rect class="hourglass-wood" x="12" y="142" width="76" height="8" rx="2.5" fill="var(--hourglass-wood, #5c3e29)" stroke="var(--hourglass-border, #2c1a0e)" stroke-width="1.2" />
+
+                      <!-- Side pillars (brass rods) -->
+                      <line class="hourglass-rod" x1="18" y1="18" x2="18" y2="142" stroke="var(--hourglass-rod, #cca752)" stroke-width="2.5" stroke-linecap="round" />
+                      <line class="hourglass-rod" x1="82" y1="18" x2="82" y2="142" stroke="var(--hourglass-rod, #cca752)" stroke-width="2.5" stroke-linecap="round" />
+                      
+                      <!-- Inner background support rod -->
+                      <line class="hourglass-rod" x1="50" y1="18" x2="50" y2="142" stroke="var(--hourglass-rod, #cca752)" stroke-width="1" opacity="0.15" />
+
+                      <!-- Glass Bulb Shape (translucent, thin outline) -->
+                      <path d="M 28 18 L 72 18 C 72 58, 59 78, 52 80 L 52 80 C 59 82, 72 102, 72 142 L 28 142 C 28 102, 41 82, 48 80 L 48 80 C 41 78, 28 58, 28 18 Z" fill="rgba(255, 255, 255, 0.05)" stroke="#4a3b32" stroke-width="1.2" />
+
+                      <!-- Top Sand (Decreasing) -->
+                      <path class="sand-top" d="M 30 20 L 70 20 C 70 56, 58 76, 51 79 L 49 79 C 42 76, 30 56, 30 20 Z" fill="url(#pixel-sand)" clip-path="url(#clip-top)" />
+                      
+                      <!-- Bottom Sand (Increasing) -->
+                      <path class="sand-bottom" d="M 49 81 L 51 81 C 58 84, 70 104, 70 140 L 30 140 C 30 104, 42 84, 49 81 Z" fill="url(#pixel-sand)" clip-path="url(#clip-bottom)" />
+                      
+                      <!-- Falling Sand Stream (Pixelated) -->
+                      <line class="sand-stream" x1="50" y1="79" x2="50" y2="140" stroke="url(#pixel-sand)" stroke-width="2" stroke-linecap="square" stroke-dasharray="2,2" />
+                      
+                      <!-- Sand Mound -->
+                      <path class="sand-mound" d="M 36 140 Q 50 122 64 140 Z" fill="url(#pixel-sand)" clip-path="url(#clip-bottom)" />
+                      
+                      <!-- Sand Flower (blooming on timer complete) -->
+                      <g class="sand-flower" id="hourglass-flower" transform="translate(50, 140) scale(0)">
+                        <path d="M 0 0 Q -2 -10 0 -18" fill="none" stroke="#606c38" stroke-width="1.5" stroke-linecap="round" />
+                        <path d="M 0 -8 Q -5 -10 -4 -6" fill="#606c38" />
+                        <path d="M 0 -12 Q 5 -14 4 -10" fill="#606c38" />
+                        <circle cx="0" cy="-18" r="2" fill="#d4a373" />
+                        <circle cx="-3" cy="-18" r="1.5" fill="white" />
+                        <circle cx="3" cy="-18" r="1.5" fill="white" />
+                        <circle cx="0" cy="-21" r="1.5" fill="white" />
+                        <circle cx="0" cy="-15" r="1.5" fill="white" />
+                      </g>
+
+                      <!-- Glass reflection highlight (single clean line) -->
+                      <path d="M 33 24 C 33 52, 42 68, 47 72" fill="none" stroke="rgba(255, 255, 255, 0.55)" stroke-width="1" stroke-linecap="round" />
+                    </svg>
+                  </div>
+                  
+                  <div class="timer-clock-wrapper">
+                    <span class="timer-time" id="timer-clock-text">--:--</span>
+                    <span class="timer-label" id="timer-clock-label">Chọn túi trà để bắt đầu</span>
+                    <div id="timer-active-task" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--primary); font-weight: 700; display: none;">Nhiệm vụ: Chưa chọn</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reward Preview -->
+              <div class="brew-reward-preview" id="brew-reward-info">
+                <span>Chọn một túi trà yêu thích để bắt đầu ngâm nhé!</span>
+              </div>
+
+              <!-- Timer Controls -->
+              <div class="timer-controls">
+                <button id="timer-reset-btn" class="btn btn-secondary btn-circle" title="Đặt lại">
+                  <i data-lucide="rotate-ccw"></i>
+                </button>
+                <button id="timer-play-btn" class="btn btn-primary btn-circle-lg" title="Bắt đầu ngâm trà">
+                  <i data-lucide="play"></i>
+                </button>
+                <button id="timer-giveup-btn" class="btn btn-secondary btn-circle hidden" title="Bỏ cuộc (mất túi trà)">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+
+              <div class="timer-info-footer">
+                <span id="timer-session-count">Hôm nay chị đã ủ thành công: 0 tách trà</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Focus Music & Checklist Area -->
+          <div class="timer-right">
+            <!-- Vintage Vinyl Record Player -->
+            <div class="card vinyl-player-card">
+              <div class="card-header">
+                <h3>Máy Hát Đĩa Than (Tee-Grammophon)</h3>
+                <span class="sub-label">Click vào đĩa than để Bật/Tắt nhạc</span>
+              </div>
+              
+              <!-- Track Selector -->
+              <div class="vinyl-track-selector">
+                <button class="track-btn active" data-sound="paddington">Paddington</button>
+                <button class="track-btn" data-sound="dl">Focus</button>
+                <button class="track-btn" data-sound="fantasy">Fantasy</button>
+              </div>
+
+              <!-- Turntable Container -->
+              <div class="turntable-container">
+                <div class="turntable-base">
+
+                  <!-- Platter underneath -->
+                  <div class="turntable-platter"></div>
+                  
+                  <!-- Lever Switch -->
+                  <div class="turntable-lever-switch" id="turntable-lever" onclick="toggleVinylPlayback()">
+                    <div class="lever-base"></div>
+                    <div class="lever-handle"></div>
+                  </div>
+                  
+                  <!-- Vinyl disc -->
+                  <div class="vinyl-disc" id="vinyl-disc">
+                    <div class="vinyl-groove-1"></div>
+                    <div class="vinyl-groove-2"></div>
+                    <div class="vinyl-label">
+                      <div class="vinyl-label-center"></div>
+                      <span id="vinyl-label-text">Padding</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Tonearm / Kim đĩa than -->
+                  <div class="tonearm-container" id="tonearm">
+                    <svg viewBox="0 0 100 150" class="tonearm-svg">
+                      <!-- Base -->
+                      <circle cx="80" cy="30" r="12" fill="#c29647" stroke="#3a2517" stroke-width="1.5"></circle>
+                      <circle cx="80" cy="30" r="6" fill="#7d5e27"></circle>
+                      <!-- Arm (S-shaped curved arm in vintage brass) -->
+                      <path d="M 80 30 C 75 55 58 65 58 105 L 42 125" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round"></path>
+                      <!-- Head shell / Cartridge in retro black and gold -->
+                      <rect x="34" y="122" width="14" height="8" rx="2" fill="#222" stroke="#d4af37" stroke-width="1" transform="rotate(-30 40 125)"></rect>
+                    </svg>
+                  </div>
+                  
+                  <!-- Hardware Details -->
+                  <div class="turntable-led"></div>
+                  <div class="turntable-knob-volume"></div>
+                  <div class="turntable-knob-speed"></div>
+                  <div class="turntable-pitch"></div>
+                  <!-- Golden music notes flying from record (Pure CSS) -->
+                  <div id="vinyl-lottie-notes" class="vinyl-notes-animation" style="position: absolute; top: 10px; left: 10px; width: 200px; height: 200px; pointer-events: none; z-index: 9;">
+                    <span class="floating-note note-1">♪</span>
+                    <span class="floating-note note-2">♫</span>
+                    <span class="floating-note note-3">♩</span>
+                    <span class="floating-note note-4">♬</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="vinyl-status-container">
+                <!-- Retro wave oscillations (Pure CSS) -->
+                <div class="music-waves" id="music-waves" style="display: none;">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="vinyl-now-playing" id="vinyl-status-text">
+                  Trạng thái: Đang tắt nhạc
+                </div>
+              </div>
+            </div>
+
+            <!-- Mini Session To-Do Checklist -->
+            <div class="card timer-todo-card">
+              <div class="card-header">
+                <h3>Mục Tiêu Phiên Học</h3>
+              </div>
+              <div class="timer-todo-input">
+                <input type="text" id="timer-new-todo" placeholder="Công việc cần làm ngay...">
+                <button class="btn btn-secondary" id="timer-add-todo">Thêm</button>
+              </div>
+              <ul class="todo-list" id="timer-todo-list">
+                <!-- Dynamic Content -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 3: German Diary (Nhật Ký Niêm Phong) -->
+      <section id="diary-tab" class="tab-content">
+        <div class="diary-layout">
+          <!-- Left side: Entry List & Sidebar -->
+          <div class="diary-sidebar-area">
+            <div class="card diary-sidebar-card">
+              <div class="card-header flex-col">
+                <div class="flex-row w-full justify-between">
+                  <h3>Trang Nhật Ký Đã Lưu</h3>
+                  <button class="btn btn-primary btn-sm" id="diary-new-btn">
+                    <i data-lucide="plus"></i> Viết trang mới
+                  </button>
+                </div>
+                <!-- Search & Filters -->
+                <div class="diary-filters w-full">
+                  <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="diary-search-input" placeholder="Tìm kiếm trang nhật ký...">
+                  </div>
+                  <div class="date-filter">
+                    <label for="diary-filter-date">Lọc ngày:</label>
+                    <input type="date" id="diary-filter-date">
+                  </div>
+                  <div class="tag-filter-select">
+                    <select id="diary-filter-tag">
+                      <option value="">Tất cả các thẻ</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="diary-list" id="diary-entries-list">
+                <!-- Dynamic Content -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side: Entry Editor / View -->
+          <div class="diary-editor-area">
+            <div class="card diary-editor-card">
+              
+              <!-- Decorative Wooden Pencil Box -->
+              <div class="cozy-pencil-box-decor" title="Hộp bút chì gỗ sồi">
+                <svg viewBox="0 0 60 40" class="pencil-box-svg">
+                  <!-- Wooden Box -->
+                  <rect x="5" y="15" width="50" height="22" rx="3" fill="#8b5a2b" stroke="#5c3e29" stroke-width="1.5" />
+                  <line x1="5" y1="23" x2="55" y2="23" stroke="#5c3e29" stroke-width="1" opacity="0.6" />
+                  <ellipse cx="30" cy="23" rx="4" ry="2" fill="#cca05a" stroke="#5c3e29" stroke-width="1" />
+                  <!-- Pencils sticking out -->
+                  <!-- Pencil 1 (red) -->
+                  <path d="M 12 15 L 12 2 L 15 5 L 15 15 Z" fill="#b87b80" stroke="#5c3e29" stroke-width="0.8" />
+                  <polygon points="12,2 15,2 13.5,-1" fill="#cca05a" stroke="#5c3e29" stroke-width="0.8" />
+                  <polygon points="13,0 14,0 13.5,-1" fill="#b87b80" />
+                  <!-- Pencil 2 (green) -->
+                  <path d="M 22 15 L 22 4 L 25 7 L 25 15 Z" fill="#606c38" stroke="#5c3e29" stroke-width="0.8" transform="rotate(-10 23 15)" />
+                  <polygon points="22,4 25,4 23.5,1" fill="#cca05a" stroke="#5c3e29" stroke-width="0.8" transform="rotate(-10 23 15)" />
+                  <!-- Pencil 3 (fountain pen) -->
+                  <path d="M 32 15 L 32 -2 L 35 -2 L 35 15 Z" fill="#2c1a0e" stroke="#cca752" stroke-width="0.8" transform="rotate(5 33 15)" />
+                  <path d="M 32 -2 L 33.5 -6 L 35 -2 Z" fill="#cca752" stroke="#2c1a0e" stroke-width="0.8" transform="rotate(5 33 15)" />
+                  <!-- Pencil 4 (yellow) -->
+                  <path d="M 42 15 L 42 1 L 45 4 L 45 15 Z" fill="#d4a373" stroke="#5c3e29" stroke-width="0.8" transform="rotate(15 43 15)" />
+                  <polygon points="42,1 45,1 43.5,-2" fill="#cca05a" stroke="#5c3e29" stroke-width="0.8" transform="rotate(15 43 15)" />
+                </svg>
+              </div>
+              
+              <!-- Decorative Wax Seal Stamp on Top Right -->
+              <div class="diary-stamped-seal hidden" id="diary-stamped-seal">
+                <!-- Dynamic wax seal SVG placed here -->
+              </div>
+
+              <!-- Editor Header -->
+              <div class="editor-header">
+                <div class="editor-date-selector">
+                  <i data-lucide="calendar"></i>
+                  <input type="date" id="editor-date" value="2026-07-06">
+                </div>
+                
+                <div class="editor-actions">
+                  <button class="btn btn-secondary btn-sm" id="diary-auto-fill-stats">
+                    <i data-lucide="import"></i> Chèn thống kê học
+                  </button>
+                  <button class="btn btn-secondary btn-sm" id="diary-delete-btn" style="color: #c96f75; border-color: rgba(201, 111, 117, 0.3);" onclick="deleteCurrentDiaryEntry()">
+                    <i data-lucide="trash-2"></i> Xóa bài viết
+                  </button>
+                  <button class="btn btn-primary" id="diary-save-btn">
+                    <i data-lucide="save"></i> Lưu trang viết
+                  </button>
+                </div>
+              </div>
+
+              <!-- Editor Form -->
+              <div class="editor-form">
+                <!-- Title & Mood & Tags -->
+                <div class="editor-meta-row">
+                  <!-- Mood Tracker -->
+                  <div class="mood-selector-container">
+                    <span class="editor-label">Tâm trạng hôm nay:</span>
+                    <div class="mood-emojis">
+                      <button class="mood-btn" data-mood="happy" title="Vui vẻ">😊</button>
+                      <button class="mood-btn" data-mood="focused" title="Tập trung">🎯</button>
+                      <button class="mood-btn" data-mood="relaxed" title="Thư giãn">🍃</button>
+                      <button class="mood-btn" data-mood="tired" title="Mệt mỏi">😴</button>
+                    </div>
+                  </div>
+
+                  <!-- Tags Editor -->
+                  <div class="tags-editor-container">
+                    <span class="editor-label">Thẻ (Tags):</span>
+                    <div class="tags-input-wrapper">
+                      <div class="tags-badges" id="editor-tags-badges">
+                        <!-- Dynamic Tags -->
+                      </div>
+                      <input type="text" id="editor-tag-input" placeholder="Nhập tag & bấm Enter">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Wax Seal Selection for the diary -->
+                <div class="wax-seal-editor-container">
+                  <span class="editor-label">Niêm Phong Bằng Sáp (Wax Seal):</span>
+                  <div class="wax-seal-picker" id="editor-wax-seal-picker">
+                    <!-- Dynamic unlocked wax seals will show here -->
+                  </div>
+                  <span class="helper-text-small">Mở khóa thêm các mẫu dấu sáp niêm phong độc quyền bằng Đồng xu cổ tại Tiệm Trà!</span>
+                </div>
+
+                <!-- German Content Editor -->
+                <div class="editor-main-area">
+                  <label for="editor-content" class="editor-label-large">Mein Tagebuch (Viết nhật ký bằng tiếng Đức):</label>
+                  <textarea id="editor-content" placeholder="Schreibe heute dein Tagebuch auf Deutsch hier... (Hôm nay hãy viết nhật ký bằng tiếng Đức tại đây...)"></textarea>
+                </div>
+
+                <!-- Vocabulary Box Widget -->
+                <div class="vocab-box-widget">
+                  <div class="vocab-header">
+                    <h4><i data-lucide="sparkles"></i> Vokabeln des Tages (Từ vựng hôm nay)</h4>
+                    <span class="sub-label">Lưu lại từ mới học được trong ngày</span>
+                  </div>
+                  <div class="vocab-inputs">
+                    <input type="text" id="vocab-word" placeholder="Từ tiếng Đức (ví dụ: das Teehaus)">
+                    <input type="text" id="vocab-meaning" placeholder="Nghĩa tiếng Việt (ví dụ: quán trà)">
+                    <button class="btn btn-secondary" id="vocab-add-btn">Thêm từ</button>
+                  </div>
+                  <div class="vocab-table-wrapper">
+                    <table class="vocab-table">
+                      <thead>
+                        <tr>
+                          <th>Wort (Từ vựng)</th>
+                          <th>Bedeutung (Nghĩa)</th>
+                          <th style="width: 50px;"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="vocab-list-tbody">
+                        <!-- Dynamic Vocabularies -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Audio Recorder and Media Attachments -->
+                <div class="media-attachments-widget">
+                  <div class="media-section audio-section" id="audio-cassette-widget">
+                    <h4><i data-lucide="mic"></i> Thu âm phát âm tiếng Đức</h4>
+                    
+                    <!-- Retro Cassette Tape Widget -->
+                    <div class="cassette-tape">
+                      <div class="cassette-label">
+                        <div class="cassette-title">Mein Tagebuch</div>
+                        <div class="cassette-spools">
+                          <div class="spool left-spool">
+                            <div class="tape-roll" id="cassette-tape-left" style="width: 44px; height: 44px;"></div>
+                            <div class="spool-teeth"></div>
+                          </div>
+                          <div class="spool right-spool">
+                            <div class="tape-roll" id="cassette-tape-right" style="width: 28px; height: 28px;"></div>
+                            <div class="spool-teeth"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="cassette-bottom"></div>
+                    </div>
+
+                    <div class="audio-controls-row">
+                      <button class="btn btn-secondary" id="record-btn">
+                        <i data-lucide="circle" class="record-icon"></i>
+                        <span id="record-text">Ghi âm</span>
+                      </button>
+                      <span class="record-timer hidden" id="record-timer">00:00</span>
+                      <div id="audio-preview-container" class="hidden">
+                        <audio id="audio-player" controls></audio>
+                        <button class="btn btn-danger btn-icon-sm" id="delete-audio-btn" title="Xóa"><i data-lucide="trash-2"></i></button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="media-section image-section">
+                    <h4><i data-lucide="image"></i> Đính kèm hình ảnh minh họa</h4>
+                    <div class="image-upload-row">
+                      <label for="image-upload-input" class="btn btn-secondary">
+                        <i data-lucide="upload"></i> Chọn ảnh
+                      </label>
+                      <input type="file" id="image-upload-input" accept="image/*" class="hidden">
+                      <span class="file-name" id="image-upload-name">Chưa chọn ảnh</span>
+                    </div>
+                    <div class="image-previews-container hidden" id="image-previews">
+                      <!-- Base64 Image Preview -->
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab: Lese-Ecke (Góc Đọc Sách) -->
+      <section id="reading-tab" class="tab-content">
+        <header class="tab-header">
+          <div>
+            <h1>Lese-Ecke (Góc Đọc Sách)</h1>
+            <p class="german-quote">"Ein Buch ist wie ein Garten, den man in der Tasche trägt." (Một cuốn sách giống như một khu vườn mà người ta mang trong túi)</p>
+          </div>
+          <div class="reading-header-actions">
+            <button class="btn btn-primary" onclick="openAddBookModal()" style="display:inline-flex; align-items:center; gap:0.4rem;">
+              <i data-lucide="plus" style="width:16px; height:16px;"></i> Thêm Sách Mới
+            </button>
+          </div>
+        </header>
+
+        <div class="reading-grid">
+          <!-- Cột bên trái: Giá sách gỗ & Lịch sử đọc sách -->
+          <div class="reading-column-left">
+            <div class="card reading-bookshelf-card">
+              <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>Kệ Sách Gỗ Sồi (Lese-Regal)</h3>
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                  <button class="btn btn-secondary btn-icon-sm" onclick="openManualBookAddDialog()" title="Thêm sách thủ công" style="padding:0.3rem 0.6rem; font-size:0.8rem; display:inline-flex; align-items:center; gap:0.3rem;">
+                    <i data-lucide="plus-circle" style="width:14px; height:14px;"></i> Thêm sách
+                  </button>
+                  <div class="bookshelf-decorations" id="bookshelf-decors" style="display:flex; gap:0.5rem;">
+                    <!-- Unlocked boutique items show here -->
+                  </div>
+                </div>
+              </div>
+              <div class="vintage-bookshelf-wrapper">
+                <div class="vintage-bookshelf">
+                  <!-- Shelf 1: Reading -->
+                  <div class="shelf-row">
+                    <span class="shelf-label">ĐANG ĐỌC (Lesen)</span>
+                    <div class="shelf-books-container" id="shelf-reading"></div>
+                    <div class="shelf-plank"></div>
+                  </div>
+                  <!-- Shelf 2: Want to Read -->
+                  <div class="shelf-row">
+                    <span class="shelf-label">MUỐN ĐỌC (Möchte lesen)</span>
+                    <div class="shelf-books-container" id="shelf-want"></div>
+                    <div class="shelf-plank"></div>
+                  </div>
+                  <!-- Shelf 3: Finished -->
+                  <div class="shelf-row">
+                    <span class="shelf-label">ĐÃ XONG (Gelesen)</span>
+                    <div class="shelf-books-container" id="shelf-finished"></div>
+                    <div class="shelf-plank"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lịch sử đọc sách dạng Thẻ thư viện -->
+            <div class="card library-history-card">
+              <div class="card-header">
+                <h3>Thẻ Ghi Nhận Phiên Đọc (Library Cards)</h3>
+              </div>
+              <div class="library-cards-container" id="library-cards-history">
+                <p style="text-align:center; color:var(--text-muted); font-style:italic; padding: 2rem 0;">Chưa có phiên đọc sách nào được ghi nhận.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột bên phải: Trình đọc sách 3D & Đồng hồ & Từ vựng mini -->
+          <div class="reading-column-right">
+            <!-- Trình đọc sách 3D & Bộ nạp file -->
+            <div class="card cozy-reader-card">
+              <div class="card-header">
+                <h3>Góc Đọc Trực Tiếp (EPUB / TXT)</h3>
+                <div class="cozy-reader-actions" style="display:flex; gap:0.5rem; align-items:center;">
+                  <button class="btn btn-secondary btn-icon-sm hidden" id="btn-reader-close-book" onclick="exitReaderFullMode()" title="Quay lại Kệ sách" style="display:inline-flex; align-items:center; gap:0.4rem;">
+                    <i data-lucide="arrow-left" style="width:14px; height:14px;"></i> Quay lại Kệ sách
+                  </button>
+                  <button class="btn btn-secondary btn-icon-sm hidden" id="btn-reader-delete-book" onclick="deleteCurrentReaderBook()" title="Xóa cuốn sách này" style="color:#b87b80; border-color:rgba(184, 123, 128, 0.3); display:inline-flex; align-items:center; gap:0.4rem;">
+                    <i data-lucide="trash-2" style="width:14px; height:14px;"></i> Xóa sách
+                  </button>
+                  <label for="book-file-upload" class="btn btn-secondary btn-icon-sm" title="Tải tệp sách lên" style="display:inline-flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                    <i data-lucide="upload-cloud" style="width:14px; height:14px;"></i> Tải sách (.epub/.txt)
+                  </label>
+                  <input type="file" id="book-file-upload" accept=".epub,.txt" class="hidden" onchange="handleBookFileUpload(event)">
+                </div>
+              </div>
+              
+              <!-- Thanh điều chỉnh phông chữ, cỡ chữ, chế độ tối/sáng của bộ đọc -->
+              <div class="reader-toolbar hidden" id="reader-tool-bar" style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0.5rem 1rem; background:rgba(139, 90, 71, 0.04); border-bottom:1px solid var(--border-color); font-size:0.8rem; gap:1rem; flex-wrap:wrap;">
+                <div style="display:flex; gap:0.4rem; align-items:center;">
+                  <button class="btn btn-secondary btn-icon-sm" onclick="adjustReaderFontSize(-0.05)" title="Giảm cỡ chữ" style="padding:0.2rem 0.4rem; font-size:0.75rem; line-height:1;">A-</button>
+                  <span id="lbl-reader-font-size" style="font-weight:700; color:var(--text-main);">100%</span>
+                  <button class="btn btn-secondary btn-icon-sm" onclick="adjustReaderFontSize(0.05)" title="Tăng cỡ chữ" style="padding:0.2rem 0.4rem; font-size:0.75rem; line-height:1;">A+</button>
+                </div>
+                
+                <div style="display:flex; gap:0.4rem; align-items:center;">
+                  <select id="reader-font-select" onchange="changeReaderFont()" class="vintage-select" style="padding:0.2rem; font-size:0.75rem; font-family:var(--font-body); height:26px;">
+                    <option value="'Lora', Georgia, serif">Cổ điển (Serif)</option>
+                    <option value="'Special Elite', monospace">Máy đánh chữ</option>
+                    <option value="system-ui, sans-serif">Hiện đại (Sans)</option>
+                  </select>
+                  
+                  <select id="reader-theme-select" onchange="changeReaderTheme()" class="vintage-select" style="padding:0.2rem; font-size:0.75rem; font-family:var(--font-body); height:26px;">
+                    <option value="sepia">Giấy ố vàng</option>
+                    <option value="cream">Kem ấm áp</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="reader-viewport">
+                <!-- No book loaded state -->
+                <div class="reader-empty-state" id="reader-empty-view">
+                  <i data-lucide="book-open" style="width: 48px; height: 48px; color: var(--text-muted); opacity: 0.6; margin-bottom: 1rem;"></i>
+                  <p style="font-weight: 700; color: var(--text-main);">Chưa mở cuốn sách nào</p>
+                  <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 250px; margin-top: 0.25rem;">Chọn một cuốn sách đang đọc trên kệ gỗ hoặc tải lên tệp sách mới để bắt đầu đọc.</p>
+                </div>
+
+                <!-- 3D Book Layout Container -->
+                <div class="cozy-3d-reader-container hidden" id="reader-active-view">
+                  <div class="cozy-3d-book" id="cozy-book-object">
+                    <!-- Left Page -->
+                    <div class="book-page book-page-left">
+                      <div class="page-content" id="reader-page-left-content">
+                        <!-- Left text page -->
+                      </div>
+                      <span class="page-number-indicator" id="reader-page-left-num">1</span>
+                    </div>
+                    
+                    <!-- Middle Page Divider Shadow -->
+                    <div class="book-spine-divider"></div>
+                    
+                    <!-- Right Page -->
+                    <div class="book-page book-page-right">
+                      <div class="page-content" id="reader-page-right-content">
+                        <!-- Right text page -->
+                      </div>
+                      <span class="page-number-indicator" id="reader-page-right-num">2</span>
+                    </div>
+
+                    <!-- Turning Page Overlay (CSS 3D animated) -->
+                    <div class="book-page book-page-turning hidden" id="reader-page-turning-element">
+                      <div class="page-content" id="reader-page-turning-content"></div>
+                    </div>
+                  </div>
+
+                  <!-- Reader Controls -->
+                  <div class="reader-navigation-row">
+                    <button class="btn btn-secondary btn-icon-sm" onclick="prevBookPage()" title="Trang trước">
+                      <i data-lucide="chevron-left"></i>
+                    </button>
+                    <span class="reader-progress-label" id="reader-page-progress">Trang 1 / 100 (1%)</span>
+                    <button class="btn btn-secondary btn-icon-sm" onclick="nextBookPage()" title="Trang sau">
+                      <i data-lucide="chevron-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bộ đếm giờ đọc & Tiến độ hàng ngày -->
+            <div class="card reading-timer-card">
+              <div class="card-header">
+                <h3>Bộ Đếm Giờ Đọc Sách (Lese-Timer)</h3>
+                <span class="daily-target-badge" id="reading-daily-target-badge">Mục tiêu: 0/20 phút</span>
+              </div>
+              <div class="reading-timer-body">
+                <!-- Clock face -->
+                <div class="reading-clock-face">
+                  <div class="clock-ring">
+                    <span class="clock-time-display" id="reading-timer-text">20:00</span>
+                    <span class="clock-label-display" id="reading-timer-state">BẤM CHƠI</span>
+                  </div>
+                </div>
+                
+                <div class="reading-timer-controls">
+                  <button class="btn btn-secondary btn-icon" id="btn-reading-timer-reset" onclick="resetReadingTimer()" title="Thiết lập lại">
+                    <i data-lucide="rotate-ccw"></i>
+                  </button>
+                  <button class="btn btn-primary btn-icon-large" id="btn-reading-timer-toggle" onclick="toggleReadingTimer()" title="Bắt đầu/Tạm dừng">
+                    <i data-lucide="play" id="icon-reading-timer-play"></i>
+                  </button>
+                  <button class="btn btn-secondary btn-icon" id="btn-reading-timer-log" onclick="openManualLogModal()" title="Nhập tay buổi đọc">
+                    <i data-lucide="pencil"></i>
+                  </button>
+                </div>
+
+                <!-- Quick Active Book Selector -->
+                <div class="quick-book-selector-container" style="margin-top: 1.5rem; width: 100%;">
+                  <label class="editor-label">Đang đọc cuốn sách:</label>
+                  <select id="reading-active-book-select" class="vintage-select" onchange="changeActiveReadingBook()" style="width: 100%; margin-top: 0.25rem;">
+                    <option value="">-- Chọn sách hoặc Đọc tự do --</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sổ tay từ vựng mini bỏ túi (Vocab Pocketbook) -->
+            <div class="card vocab-pocketbook-card">
+              <div class="card-header">
+                <h3>Sổ Từ Vựng Đọc Sách (Lese-Vokabeln)</h3>
+              </div>
+              <div class="vocab-pocketbook-body">
+                <div class="pocketbook-add-row" style="display:flex; gap:0.4rem; margin-bottom: 0.75rem;">
+                  <input type="text" id="pocket-vocab-word" placeholder="Từ mới (z.B. lesen)" style="flex:1;">
+                  <input type="text" id="pocket-vocab-meaning" placeholder="Nghĩa (đọc)" style="flex:1;">
+                  <button class="btn btn-primary btn-icon-sm" onclick="addPocketVocabulary()" title="Lưu nhanh">
+                    <i data-lucide="plus" style="width:14px; height:14px;"></i>
+                  </button>
+                </div>
+                <div class="pocketbook-list" id="pocketbook-vocab-list">
+                  <p style="text-align:center; color:var(--text-muted); font-size:0.8rem; font-style:italic; margin-top:0.5rem;">Chưa lưu từ vựng nào.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 4: Study Analytics (Thống Kê Lưu Trữ) -->
+      <section id="analytics-tab" class="tab-content">
+        <header class="tab-header">
+          <div>
+            <h1>Thống Kê Lưu Trữ</h1>
+            <p class="german-quote">"Die Kunst des Ausruhens ist ein Teil der Kunst des Arbeitens." (Nghệ thuật nghỉ ngơi là một phần của nghệ thuật làm việc)</p>
+          </div>
+        </header>
+
+        <!-- Sub-Navigation for Analytics -->
+        <div class="analytics-sub-nav">
+          <button class="sub-nav-btn active" onclick="switchAnalyticsSubTab('overview')"><i data-lucide="bar-chart-2"></i> Tổng quan & Biểu đồ</button>
+          <button class="sub-nav-btn" onclick="switchAnalyticsSubTab('efficiency')"><i data-lucide="award"></i> Hiệu suất nhiệm vụ</button>
+          <button class="sub-nav-btn" onclick="switchAnalyticsSubTab('history')"><i data-lucide="calendar"></i> Nhật ký học tập</button>
+        </div>
+
+        <div class="analytics-grid">
+          
+          <!-- SUB-TAB 1: OVERVIEW & CHARTS -->
+          <div id="subtab-overview" class="analytics-sub-content">
+            <!-- Oak Board with Handwritten Note Cards -->
+            <div class="oak-board">
+              <div class="note-paper">
+                <span class="brass-pin">📌</span>
+                <span class="note-title">Tổng thời gian học</span>
+                <span class="note-value" id="stats-total-time">0h 0m</span>
+                <span class="note-sub">Lưu trữ từ đầu</span>
+              </div>
+              <div class="note-paper">
+                <span class="brass-pin">📌</span>
+                <span class="note-title">Trung bình hàng ngày</span>
+                <span class="note-value" id="stats-avg-time">0m</span>
+                <span class="note-sub">Dựa trên ngày học</span>
+              </div>
+              <div class="note-paper">
+                <span class="brass-pin">📌</span>
+                <span class="note-title">Mục tiêu hoàn thành</span>
+                <span class="note-value" id="stats-goals-completed">0 ngày</span>
+                <span class="note-sub">Đủ trà mục tiêu thành công</span>
+              </div>
+              <div class="note-paper">
+                <span class="brass-pin">📌</span>
+                <span class="note-title">Tổng số tách đã ủ</span>
+                <span class="note-value" id="stats-total-teacups">0 tách</span>
+                <span class="note-sub">Tất cả các loại trà</span>
+              </div>
+            </div>
+
+            <!-- Combined Chart Card -->
+            <div class="card combined-chart-card" style="margin-top: 1.5rem;">
+              <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <div>
+                  <h3 id="chart-display-title">Thời gian học 7 ngày qua</h3>
+                  <span class="sub-label">Bấm nút để thay đổi chỉ số hiển thị</span>
+                </div>
+                <div class="chart-toggle-buttons" style="display:flex; gap:0.45rem;">
+                  <button class="btn btn-secondary btn-sm active" id="btn-chart-weekly" onclick="toggleCombinedChart('weekly')">Thời gian học</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-chart-completion" onclick="toggleCombinedChart('completion')">Tỷ lệ theo môn</button>
+                </div>
+              </div>
+              <div class="chart-container" style="position: relative; height: 280px; padding: 0.5rem 0;">
+                <canvas id="combined-analytics-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- Diary Tag Cloud -->
+            <div class="card tag-cloud-card" style="margin-top: 1.5rem;">
+              <div class="card-header">
+                <h3>Đám mây từ khóa nhật ký (Diary Tag Cloud)</h3>
+                <span class="sub-label">Những chủ đề và cảm xúc chị ghi chép nhiều nhất</span>
+              </div>
+              <div class="tag-cloud-body" id="diary-tag-cloud">
+                <!-- Tags rendered dynamically in JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB 2: EFFICIENCY -->
+          <div id="subtab-efficiency" class="analytics-sub-content hidden">
+            <div class="efficiency-row-container" style="display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 1.5rem;">
+              
+              <!-- Pomo Task Table Card -->
+              <div class="card">
+                <div class="card-header">
+                  <h3>Thống Kê Chi Tiết Theo Nhiệm Vụ</h3>
+                  <span class="sub-label">Số chu kỳ Pomodoro và tổng phút học tập của từng việc</span>
+                </div>
+                <div class="history-table-wrapper" style="max-height: 320px;">
+                  <table class="history-table">
+                    <thead>
+                      <tr>
+                        <th>Nhiệm vụ</th>
+                        <th>Số chu kỳ Pomo</th>
+                        <th>Tổng phút</th>
+                      </tr>
+                    </thead>
+                    <tbody id="pomo-tasks-tbody">
+                      <!-- Dynamic task logs -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Chamomile Bloom Rate Card -->
+              <div class="card chamomile-bloom-card" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding: 2rem 1.5rem;">
+                <div class="card-header" style="border:none; padding:0; margin-bottom:1.5rem;">
+                  <h3 style="font-size:1.1rem; color: var(--primary);">Tỷ Lệ Nở Hoa Trà (Chamomile Bloom Rate)</h3>
+                  <span class="sub-label">Tiến trình hoàn thành việc cần làm</span>
+                </div>
+                <div class="bloom-rate-dial-container" style="position:relative; width:130px; height:130px;">
+                  <svg viewBox="0 0 100 100" style="width:130px; height:130px;">
+                    <circle cx="50" cy="50" r="42" stroke="var(--bg-sidebar)" stroke-width="7" fill="none"></circle>
+                    <circle cx="50" cy="50" r="42" stroke="var(--primary)" stroke-width="8" fill="none" id="bloom-rate-progress-circle" stroke-dasharray="263.8" stroke-dashoffset="263.8" stroke-linecap="round" style="transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.6s ease;"></circle>
+                  </svg>
+                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:1.9rem; font-weight:800; color:var(--text-main);" id="bloom-rate-text">0%</span>
+                    <span style="font-size:0.6rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Nở hoa</span>
+                  </div>
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-top:1.5rem; max-width:240px; line-height:1.45;" id="bloom-rate-encouragement">
+                  Bông hoa trà chamomile đang đợi chị hoàn thành nhiệm vụ để nở rộ đó!
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- SUB-TAB 3: HISTORY & BACKUP -->
+          <div id="subtab-history" class="analytics-sub-content hidden">
+            <!-- Vintage Mailbox Card -->
+            <div class="card vintage-mailbox-card" style="margin-bottom: 1.5rem;">
+              <div class="card-header">
+                <h3>Hộp Thư Bưu Điện Cổ (Backup & Restore)</h3>
+                <span class="sub-label">Sao lưu hoặc khôi phục dữ liệu Das TeeHaus của chị</span>
+              </div>
+              <div class="vintage-mailbox-body">
+                <div class="mailbox-slot-wrapper">
+                  <div class="mailbox-slot">✉️ HỘP THƯ BƯU ĐIỆN (DAS POSTAMT)</div>
+                </div>
+                <div class="mailbox-actions">
+                  <button class="btn btn-primary" onclick="exportDataMailbox()" title="Xuất file JSON tải về máy"><i data-lucide="mail"></i> Gửi thư đi (Export)</button>
+                  <button class="btn btn-secondary" onclick="triggerImportMailbox()" title="Chọn file JSON để phục hồi"><i data-lucide="mail-open"></i> Nhận thư về (Import)</button>
+                  <input type="file" id="mailbox-import-file" style="display:none;" onchange="importDataMailbox(this)">
+                </div>
+              </div>
+            </div>
+
+            <!-- Library Card Timeline -->
+            <div class="card library-timeline-card">
+              <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <h3>Dòng Thời Gian Ủ Trà (Lern-Chronik)</h3>
+                  <span class="sub-label">Mỗi phiên tập trung là một dấu mốc học tập cổ kính</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btn-clear-history">Xóa lịch sử</button>
+              </div>
+              <div class="library-timeline-wrapper" id="history-timeline-container">
+                <!-- Dynamic Library Card items are rendered here in JS -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Tab 5: Settings (Tiệm Trà & Cài Đặt) -->
+      <section id="settings-tab" class="tab-content">
+        <header class="tab-header">
+          <div>
+            <h1>Tiệm Trà & Cài Đặt</h1>
+            <p class="german-quote">"Ordnung ist das halbe Leben." (Trật tự ngăn nắp là một nửa cuộc sống)</p>
+          </div>
+        </header>
+
+        <div class="settings-grid">
+          
+          <!-- Column Left: Tee Shop (Tiệm Trà & Đổi Quà) -->
+          <div class="settings-column-left">
+            <div class="card boutique-card">
+              <div class="card-header">
+                <h3>Cửa Hàng Quà Tặng (Tee-Boutique)</h3>
+                <div class="user-points-display" title="Đồng xu cổ tích lũy" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(140, 90, 71, 0.08); padding: 0.4rem 0.8rem; border-radius: 15px; border: 1px dashed rgba(140, 90, 71, 0.25); flex-shrink: 0;">
+                  <svg class="signature-coin-icon" viewBox="0 0 24 24" style="width:20px; height:20px; filter: drop-shadow(0 1.5px 3px rgba(0,0,0,0.12));">
+                    <defs>
+                      <linearGradient id="signatureCoinGradBoutique" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#df9b6d" />
+                        <stop offset="50%" stop-color="#c27a4d" />
+                        <stop offset="100%" stop-color="#9f572d" />
+                      </linearGradient>
+                    </defs>
+                    <circle cx="12" cy="12" r="11" fill="url(#signatureCoinGradBoutique)" stroke="#804420" stroke-width="1.2"/>
+                    <circle cx="12" cy="12" r="8.5" fill="none" stroke="#ffd2a1" stroke-dasharray="1.5,1.5" stroke-width="1" opacity="0.85"/>
+                    <path d="M 12 6.5 C 9 9, 8 13.5, 12 16.5 C 16 13.5, 15 9, 12 6.5 Z" fill="#6e3310" opacity="0.85"/>
+                    <path d="M 12 16.5 L 12 18.5" stroke="#6e3310" stroke-width="1" stroke-linecap="round"/>
+                  </svg>
+                  <b id="shop-user-points" style="font-family: var(--font-title); font-size: 1.15rem; color: var(--primary); line-height: 1;">0</b>
+                </div>
+              </div>
+              
+              <div class="boutique-sections-wrapper">
+                
+                <!-- Section 1: Wax Seals (Dấu sáp niêm phong) -->
+                <div class="boutique-section">
+                  <h4><i data-lucide="stamp"></i> Dấu sáp niêm phong nhật ký</h4>
+                  <div class="boutique-items-grid" id="shop-seals-grid">
+                    <!-- Dynamic Wax Seals to buy -->
+                  </div>
+                </div>
+
+                <!-- Section 2: Ambient Music (Nhạc nền đặc biệt) -->
+                <div class="boutique-section">
+                  <h4><i data-lucide="music"></i> Nhạc nền cổ điển đặc biệt</h4>
+                  <div class="boutique-items-grid" id="shop-music-grid">
+                    <!-- Dynamic Music Tracks to buy -->
+                  </div>
+                </div>
+
+                <!-- Section 3: Special Drinks (Thực đơn đồ uống đặc biệt) -->
+                <div class="boutique-section">
+                  <h4><i data-lucide="coffee"></i> Thực đơn đồ uống đặc biệt</h4>
+                  <div class="boutique-items-grid" id="shop-drinks-grid">
+                    <!-- Dynamic Drinks to buy -->
+                  </div>
+                </div>
+
+                <!-- Section 4: Unified Themes & Skins (Chủ đề & Giao diện) -->
+                <div class="boutique-section">
+                  <h4><i data-lucide="palette"></i> Chủ đề & Giao diện đồng bộ</h4>
+                  <div class="boutique-items-grid" id="shop-themes-skins-grid">
+                    <!-- Dynamic Themes & Skins combo cards to buy -->
+                  </div>
+                </div>
+
+                <!-- Section: Reading Decors (Đồ dùng đọc sách) -->
+                <div class="boutique-section">
+                  <h4><i data-lucide="book-marked"></i> Đồ dùng trang trí Góc Đọc Sách</h4>
+                  <div class="boutique-items-grid" id="shop-reading-grid">
+                    <!-- Dynamic Reading Decors to buy -->
+                  </div>
+                </div>
+
+                <!-- Section 6: German Quotes Pack (Gói câu châm ngôn Đức) -->
+                <div class="boutique-section">
+                  <h4><i data-lucide="quote"></i> Gói câu châm ngôn Đức cao cấp</h4>
+                  <div class="boutique-items-grid" id="shop-quotes-grid">
+                    <!-- Dynamic Quotes Packs to buy -->
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Column Right: Standard Settings -->
+          <div class="settings-column-right">
+            <!-- Themes & Skins Config -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Chủ Đề & Giao Diện</h3>
+                <span class="sub-label">Thay đổi chủ đề trang web và diện mạo thiết bị của chị</span>
+              </div>
+              <div class="settings-form">
+                <div class="form-group">
+                  <label for="settings-combo-selector">Chủ đề & Giao diện đồng bộ:</label>
+                  <select id="settings-combo-selector" class="btn btn-secondary" style="width: 100%; font-family: var(--font-body); font-weight: 700; text-align: left; background-color: var(--bg-sidebar); border: 1px solid var(--border-color); color: var(--text-main);" onchange="changeAppStateCombo()">
+                    <!-- Options populated dynamically in app.js -->
+                  </select>
+                </div>
+                
+                <!-- Hidden selectors for compatibility -->
+                <div style="display: none;">
+                  <select id="settings-theme-selector">
+                    <option value="light">light</option>
+                    <option value="dark">dark</option>
+                  </select>
+                  <select id="settings-skin-selector">
+                    <option value="default">default</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Goal & Settings -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Cài Đặt Mục Tiêu Ngày</h3>
+              </div>
+              <div class="settings-form">
+                <div class="form-group">
+                  <label for="settings-daily-goal">Mục tiêu ủ trà hàng ngày (Phút):</label>
+                  <div class="input-with-suffix">
+                    <input type="number" id="settings-daily-goal" min="5" max="720" value="120">
+                    <span class="suffix">phút</span>
+                  </div>
+                </div>
+                <button class="btn btn-primary" id="settings-save-goal-btn">Cập nhật mục tiêu</button>
+              </div>
+            </div>
+
+            <!-- Pomodoro Config -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Cấu HÌnh Pomodoro & Chế Độ</h3>
+                <span class="sub-label">Thiết lập thời gian học/nghỉ, nhạc nền đĩa than và độ nghiêm khắc</span>
+              </div>
+              <div class="settings-form">
+                <div class="form-group">
+                  <label for="settings-pomo-work">Thời gian Học tập (Phút):</label>
+                  <div class="input-with-suffix">
+                    <input type="number" id="settings-pomo-work" min="1" max="180" value="25">
+                    <span class="suffix">phút</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="settings-pomo-short">Thời gian Nghỉ ngắn (Phút):</label>
+                  <div class="input-with-suffix">
+                    <input type="number" id="settings-pomo-short" min="1" max="60" value="5">
+                    <span class="suffix">phút</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="settings-pomo-long">Thời gian Nghỉ dài (Phút):</label>
+                  <div class="input-with-suffix">
+                    <input type="number" id="settings-pomo-long" min="1" max="120" value="15">
+                    <span class="suffix">phút</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="settings-pomo-cycle">Số chu kỳ trước khi Nghỉ dài:</label>
+                  <div class="input-with-suffix">
+                    <input type="number" id="settings-pomo-cycle" min="1" max="10" value="4">
+                    <span class="suffix">chu kỳ</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Tự động chuyển chu kỳ học/nghỉ:</label>
+                  <div style="display: flex; gap: 1rem; margin-top: 0.25rem;">
+                    <label style="display: flex; align-items: center; gap: 0.25rem; font-weight: normal; cursor: pointer;">
+                      <input type="radio" name="settings-pomo-autostart" id="settings-pomo-autostart-on" value="true" checked> Bật
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.25rem; font-weight: normal; cursor: pointer;">
+                      <input type="radio" name="settings-pomo-autostart" id="settings-pomo-autostart-off" value="false"> Tắt
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="settings-pomo-music-behavior">Nhạc nền đĩa than khi nghỉ:</label>
+                  <select id="settings-pomo-music-behavior" class="btn btn-secondary" style="width: 100%; font-family: var(--font-body); font-weight: 700; text-align: left; background-color: var(--bg-sidebar); border: 1px solid var(--border-color); color: var(--text-main);">
+                    <option value="continuous">Phát liên tục</option>
+                    <option value="pause">Tạm dừng khi nghỉ</option>
+                    <option value="nature">Chuyển tiếng tự nhiên</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Mức độ nghiêm khắc (Strict Mode):</label>
+                  <div style="display: flex; gap: 1.5rem; margin-top: 0.25rem;">
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-weight: normal; cursor: pointer;">
+                      <input type="radio" name="settings-pomo-strictness" id="settings-pomo-strict-mild" value="mild" checked> Nhẹ nhàng
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-weight: normal; cursor: pointer;">
+                      <input type="radio" name="settings-pomo-strictness" id="settings-pomo-strict-hard" value="hard"> Nghiêm khắc
+                    </label>
+                  </div>
+                </div>
+                <button class="btn btn-primary" id="settings-save-pomo-btn">Lưu cấu hình Pomodoro</button>
+              </div>
+            </div>
+
+            <!-- Subject Config -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Quản Lý Môn Học</h3>
+              </div>
+              <div class="settings-form">
+                <div class="subject-creator-row">
+                  <div class="form-group flex-1">
+                    <label for="settings-subject-name">Tên môn học mới:</label>
+                    <input type="text" id="settings-subject-name" placeholder="Ví dụ: Đức - Giao tiếp">
+                  </div>
+                  <div class="form-group">
+                    <label for="settings-subject-color">Màu sắc:</label>
+                    <div class="color-picker-wrapper">
+                      <input type="color" id="settings-subject-color" value="#ffb3ba">
+                    </div>
+                  </div>
+                  <button class="btn btn-primary align-end-btn" id="settings-add-subject-btn">Thêm môn</button>
+                </div>
+
+                <div class="subjects-management-list-wrapper">
+                  <label>Danh sách môn học của chị:</label>
+                  <ul class="subjects-mgmt-list" id="settings-subjects-list">
+                    <!-- Dynamic Subjects List -->
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cloud Sync -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Đồng Bộ Đám Mây (Cloud Sync)</h3>
+              </div>
+              <div style="padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem;">
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+                  Đồng bộ điểm học tập, sách và nhật ký của chị giữa máy tính và điện thoại. Chị chỉ cần tạo một Mã Đồng Bộ, nhập mã này trên thiết bị khác để tải dữ liệu về.
+                </p>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <label style="font-size: 0.8rem; font-weight: 600;">Mã Đồng Bộ Của Chị:</label>
+                  <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="text" id="sync-code-input" placeholder="Chưa kích hoạt đồng bộ" readonly style="flex: 1; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 1rem; text-align: center; background-color: var(--bg-hover);">
+                    <button class="btn btn-primary" id="sync-generate-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Kích hoạt / Tạo mã</button>
+                  </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">
+                  <label style="font-size: 0.8rem; font-weight: 600;">Liên kết Thiết Bị Khác:</label>
+                  <p style="font-size: 0.75rem; color: var(--text-muted);">Nếu chị muốn tải dữ liệu từ máy khác sang máy này, nhập mã đồng bộ của máy đó dưới đây:</p>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="sync-connect-code" placeholder="Ví dụ: TR-8F9B2D" style="flex: 1; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; text-align: center; text-transform: uppercase;">
+                    <button class="btn btn-secondary" id="sync-connect-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Đồng bộ dữ liệu về</button>
+                  </div>
+                </div>
+
+                <div id="sync-status-msg" style="font-size: 0.8rem; text-align: center; margin-top: 0.5rem; font-weight: 600; color: var(--primary);">
+                  Trạng thái: Chỉ lưu cục bộ trên trình duyệt
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Backup -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Sao Lưu & Sao Chép</h3>
+              </div>
+              <div class="backup-restore-box">
+                <p class="warning-text-box">
+                  <i data-lucide="alert-triangle"></i>
+                  Dữ liệu của chị được lưu trữ cục bộ trên máy tính này. Vui lòng tải file sao lưu về máy để tránh mất mát.
+                </p>
+                <div class="backup-actions">
+                  <button class="btn btn-secondary" id="settings-export-btn">
+                    <i data-lucide="download"></i> Tải File Sao Lưu (.json)
+                  </button>
+                  
+                  <div class="import-wrapper">
+                    <label for="settings-import-input" class="btn btn-primary">
+                      <i data-lucide="upload"></i> Khôi Phục Dữ Liệu
+                    </label>
+                    <input type="file" id="settings-import-input" accept=".json" class="hidden">
+                    <span id="import-file-name" class="file-name">Chưa có file</span>
+                  </div>
+
+                  <button class="btn btn-secondary" id="settings-reset-btn" style="background-color: #d9534f; color: white; border: none; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <i data-lucide="trash-2"></i> Xóa Dữ Liệu Thử Nghiệm
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Custom Vintage Dialog Modals -->
+  <div id="custom-dialog-backdrop" class="dialog-backdrop hidden">
+    <div class="dialog-card">
+      <div class="dialog-header">
+        <i data-lucide="coffee" class="dialog-icon"></i>
+        <h3 id="dialog-title">Thông báo</h3>
+      </div>
+      <div class="dialog-body">
+        <p id="dialog-message">Nội dung thông báo...</p>
+      </div>
+      <div class="dialog-footer" id="dialog-footer">
+        <!-- Buttons will be dynamically inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Celebration Confetti Lottie Overlay -->
+  <div id="celebration-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; display: none; align-items: center; justify-content: center;">
+    <lottie-player id="celebration-lottie" src="https://assets10.lottiefiles.com/packages/lf20_mr27x8cx.json" background="transparent" speed="1.2" style="width: 100%; height: 100%;" loop="false"></lottie-player>
+  </div>
+
+  <!-- Dynamic Weather & Transition Overlays -->
+  <div id="sunbeam-container" class="sunbeam-container"></div>
+  <div id="sunset-overlay" class="sunset-overlay"></div>
+
+  <!-- JavaScript Entry Point -->
+  <script src="app.js"></script>
+</body>
+</html>

@@ -615,6 +615,9 @@ function saveState(){
     if (appState.syncCode) {
       triggerCloudSyncUpload();
     }
+    if (typeof triggerSupabaseUploadDebounced === 'function') {
+      triggerSupabaseUploadDebounced();
+    }
   } catch(e) {
     console.warn("localStorage is blocked or full. State not saved permanently.", e);
   }
@@ -1764,6 +1767,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try { initDiary(); } catch(e) { console.error("initDiary failed", e); }
   try { initAnalytics(); } catch(e) { console.error("initAnalytics failed", e); }
   try { initSettings(); } catch(e) { console.error("initSettings failed", e); }
+  try { initSupabaseAuth(); } catch(e) { console.error("initSupabaseAuth failed", e); }
   try { refreshReadingTab(); } catch(e) { console.error("refreshReadingTab failed", e); }
   try { initSunbeams(); } catch(e) { console.error("initSunbeams failed", e); }
   
@@ -6861,5 +6865,232 @@ window.triggerWaxSealAnimation = function(waxSealId) {
     }, 300);
   });
 };
+
+// =============================================
+//  SUPABASE DATABASE & AUTHENTICATION SYNC
+// =============================================
+let supabaseSyncTimeout = null;
+
+function initSupabaseAuth() {
+  const header = document.getElementById('auth-card-header');
+  const configSection = document.getElementById('supabase-config-section');
+  const saveConfigBtn = document.getElementById('sb-save-config-btn');
+  const urlInput = document.getElementById('sb-url-input');
+  const keyInput = document.getElementById('sb-key-input');
+
+  // Double click header to show admin config
+  if (header && configSection) {
+    header.addEventListener('dblclick', () => {
+      const isHidden = configSection.style.display === 'none';
+      configSection.style.display = isHidden ? 'flex' : 'none';
+    });
+  }
+
+  // Load configured keys from localStorage
+  const savedUrl = localStorage.getItem('supabase_url') || "";
+  const savedKey = localStorage.getItem('supabase_anon_key') || "";
+  
+  if (urlInput) urlInput.value = savedUrl;
+  if (keyInput) keyInput.value = savedKey;
+
+  if (saveConfigBtn) {
+    saveConfigBtn.addEventListener('click', () => {
+      const url = urlInput.value.trim();
+      const key = keyInput.value.trim();
+      if (!url || !key) {
+        customAlert('Vui lòng điền đầy đủ Supabase URL và Anon API Key.');
+        return;
+      }
+      localStorage.setItem('supabase_url', url);
+      localStorage.setItem('supabase_anon_key', key);
+      customAlert('Đã lưu cấu hình kết nối! Trang web sẽ tải lại...');
+      setTimeout(() => location.reload(), 1500);
+    });
+  }
+
+  // Initialize Supabase if keys exist
+  if (savedUrl && savedKey) {
+    try {
+      if (typeof supabase !== 'undefined') {
+        window.supabaseClient = supabase.createClient(savedUrl, savedKey);
+        setupAuthListeners();
+        checkSupabaseSession();
+      } else {
+        console.warn("Supabase library not loaded yet.");
+      }
+    } catch(e) {
+      console.error("Supabase init error:", e);
+    }
+  } else {
+    showAuthStatus("Chưa cấu hình kết nối máy chủ. Nhấp đúp vào tiêu đề thẻ để thiết lập.", "var(--text-muted)");
+  }
+}
+
+function showAuthStatus(msg, color) {
+  const el = document.getElementById('auth-status-msg');
+  if (el) {
+    el.textContent = msg;
+    el.style.color = color || 'var(--primary)';
+  }
+}
+
+function updateAuthUI(user) {
+  const loggedOutView = document.getElementById('auth-logged-out-view');
+  const loggedInView = document.getElementById('auth-logged-in-view');
+  const emailDisplay = document.getElementById('auth-user-email');
+
+  if (user) {
+    if (loggedOutView) loggedOutView.style.display = 'none';
+    if (loggedInView) loggedInView.style.display = 'flex';
+    if (emailDisplay) emailDisplay.textContent = user.email;
+  } else {
+    if (loggedOutView) loggedOutView.style.display = 'flex';
+    if (loggedInView) loggedInView.style.display = 'none';
+  }
+  
+  try { lucide.createIcons(); } catch(e) {}
+}
+
+function setupAuthListeners() {
+  const loginBtn = document.getElementById('auth-login-btn');
+  const signupBtn = document.getElementById('auth-signup-btn');
+  const logoutBtn = document.getElementById('auth-logout-btn');
+  const emailInput = document.getElementById('auth-email-input');
+  const passwordInput = document.getElementById('auth-password-input');
+
+  if (loginBtn) {
+    loginBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!email || !password) {
+        showAuthStatus('Vui lòng điền email và mật khẩu.', 'red');
+        return;
+      }
+      showAuthStatus('Đang đăng nhập...', 'var(--primary)');
+      try {
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+          showAuthStatus(error.message, 'red');
+        } else {
+          showAuthStatus('Đăng nhập thành công!', '#386641');
+          updateAuthUI(data.user);
+          await loadStateFromSupabase(data.user.id);
+        }
+      } catch(e) {
+        showAuthStatus('Lỗi đăng nhập: ' + e.message, 'red');
+      }
+    });
+  }
+
+  if (signupBtn) {
+    signupBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!email || !password) {
+        showAuthStatus('Vui lòng điền email và mật khẩu.', 'red');
+        return;
+      }
+      showAuthStatus('Đang đăng ký...', 'var(--primary)');
+      try {
+        const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
+        if (error) {
+          showAuthStatus(error.message, 'red');
+        } else {
+          showAuthStatus('Đăng ký thành công! Hãy kiểm tra email để kích hoạt, hoặc thử đăng nhập.', '#386641');
+        }
+      } catch(e) {
+        showAuthStatus('Lỗi đăng ký: ' + e.message, 'red');
+      }
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        const { error } = await window.supabaseClient.auth.signOut();
+        if (error) {
+          showAuthStatus(error.message, 'red');
+        } else {
+          updateAuthUI(null);
+          showAuthStatus('Đã đăng xuất.', '#8c5a47');
+        }
+      } catch(e) {
+        showAuthStatus('Lỗi đăng xuất: ' + e.message, 'red');
+      }
+    });
+  }
+}
+
+async function checkSupabaseSession() {
+  if (!window.supabaseClient) return;
+  try {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (session && session.user) {
+      updateAuthUI(session.user);
+      await loadStateFromSupabase(session.user.id);
+    }
+  } catch(e) {
+    console.error("Session check failed:", e);
+  }
+}
+
+async function loadStateFromSupabase(userId) {
+  if (!window.supabaseClient) return;
+  try {
+    const { data, error } = await window.supabaseClient
+      .from('user_data')
+      .select('state')
+      .eq('id', userId)
+      .maybeSingle();
+    if (error) {
+      console.warn("Error fetching data from Supabase:", error.message);
+      return;
+    }
+    if (data && data.state) {
+      appState = { ...appState, ...data.state };
+      localStorage.setItem(DB_KEY, JSON.stringify(appState));
+      
+      refreshDashboard();
+      if (typeof renderBookshelf === 'function') renderBookshelf();
+      if (typeof renderDiaryEntries === 'function') renderDiaryEntries();
+      if (typeof initSettings === 'function') {
+        const dailyGoalEl = document.getElementById('settings-daily-goal');
+        if (dailyGoalEl && appState.settings) dailyGoalEl.value = appState.settings.dailyGoalMinutes || 45;
+      }
+      showAuthStatus('Đồng bộ dữ liệu đám mây thành công!', '#386641');
+    } else {
+      await triggerSupabaseUpload();
+    }
+  } catch(e) {
+    console.error("Load state from Supabase failed:", e);
+  }
+}
+
+async function triggerSupabaseUpload() {
+  if (!window.supabaseClient) return;
+  try {
+    const { data: { user } } = await window.supabaseClient.auth.getUser();
+    if (!user) return;
+    
+    const { error } = await window.supabaseClient
+      .from('user_data')
+      .upsert({
+        id: user.id,
+        state: appState,
+        updated_at: new Date().toISOString()
+      });
+    if (error) {
+      console.error("Supabase sync upload failed:", error.message);
+    }
+  } catch(e) {
+    console.error("Supabase trigger upload failed:", e);
+  }
+}
+
+function triggerSupabaseUploadDebounced() {
+  if (supabaseSyncTimeout) clearTimeout(supabaseSyncTimeout);
+  supabaseSyncTimeout = setTimeout(triggerSupabaseUpload, 1500);
+}
+
 
 

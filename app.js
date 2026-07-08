@@ -2944,12 +2944,17 @@ function renderTimerTodoList() {
     const flowerSvg = window.getTodoFlowerSVG(todo.completed);
     
     li.innerHTML = `
-      <div class="todo-item-left" data-id="${todo.id}">
+      <div class="todo-item-left" data-id="${todo.id}" style="display:flex; align-items:center; gap:0.5rem; flex:1;">
         <span class="todo-checkbox-container">${flowerSvg}</span>
         <span class="todo-text">${todo.text}</span>
       </div>
+      <button class="btn-todo-delete" data-id="${todo.id}" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding: 0.2rem; display: flex; align-items: center; justify-content: center;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
     `;
     li.querySelector('.todo-item-left').addEventListener('click', (e) => toggleTodo(todo.id, e));
+    li.querySelector('.btn-todo-delete').addEventListener('click', e => {
+      e.stopPropagation();
+      deleteTodo(todo.id);
+    });
     container.appendChild(li);
   });
   lucide.createIcons();

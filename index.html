@@ -1511,6 +1511,10 @@
                     <span id="import-file-name" class="file-name">Chưa có file</span>
                   </div>
 
+                  <button class="btn btn-secondary" id="settings-tour-btn" style="background-color: var(--primary); color: white; border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: bold; width: 100%;">
+                    <i data-lucide="help-circle"></i> Xem Lại Hướng Dẫn Sử Dụng
+                  </button>
+
                   <button class="btn btn-secondary" id="settings-reset-btn" style="background-color: #d9534f; color: white; border: none; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                     <i data-lucide="trash-2"></i> Xóa Dữ Liệu Thử Nghiệm
                   </button>
@@ -1547,9 +1551,24 @@
     <lottie-player id="celebration-lottie" src="https://assets10.lottiefiles.com/packages/lf20_mr27x8cx.json" background="transparent" speed="1.2" style="width: 100%; height: 100%;" loop="false"></lottie-player>
   </div>
 
-  <!-- Dynamic Weather & Transition Overlays -->
-  <div id="sunbeam-container" class="sunbeam-container"></div>
-  <div id="sunset-overlay" class="sunset-overlay"></div>
+  <!-- Interactive App Tour Overlay -->
+  <div id="app-tour-overlay" class="tour-overlay hidden">
+    <div id="app-tour-tooltip" class="tour-tooltip">
+      <div class="tour-tooltip-header">
+        <h4 id="tour-step-title">Tiêu đề hướng dẫn</h4>
+        <button class="tour-close-btn" id="tour-close-x-btn">&times;</button>
+      </div>
+      <p id="tour-step-text">Nội dung hướng dẫn chi tiết ở đây...</p>
+      <div class="tour-tooltip-footer">
+        <span id="tour-step-counter">1/6</span>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <button class="btn btn-secondary btn-sm" id="tour-skip-btn" style="padding:0.25rem 0.5rem; font-size:0.75rem;">Bỏ qua</button>
+          <button class="btn btn-primary btn-sm" id="tour-next-btn" style="padding:0.25rem 0.5rem; font-size:0.75rem; background-color: var(--primary); color: white; border: none; font-weight: bold; border-radius: 4px;">Tiếp theo</button>
+        </div>
+      </div>
+      <div class="tour-arrow"></div>
+    </div>
+  </div>
 
   <!-- JavaScript Entry Point -->
   <script src="app.js"></script>

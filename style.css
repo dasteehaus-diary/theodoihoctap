@@ -5439,6 +5439,134 @@ html[data-skin="italian-summer"] select option {
   color: #2E5AA7 !important;
 }
 
+/* --- INTERACTIVE ONBOARDING TOUR STYLES --- */
+.tour-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(26, 15, 8, 0.45);
+  backdrop-filter: blur(1.5px);
+  z-index: 999998;
+  pointer-events: auto;
+  transition: opacity 0.3s ease;
+}
+.tour-overlay.hidden {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+.tour-tooltip {
+  position: absolute;
+  width: 290px;
+  background-color: var(--bg-card, #faf6eb);
+  background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
+  border: 2px solid var(--border-color, #8c5a47);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 999999;
+  font-family: var(--font-body);
+  transition: all 0.3s ease;
+  pointer-events: auto;
+}
+.tour-tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed var(--border-color, rgba(140, 90, 71, 0.25));
+  padding-bottom: 0.4rem;
+}
+.tour-tooltip-header h4 {
+  font-family: var(--font-title);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary, #8c5a47);
+  margin: 0;
+}
+.tour-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--text-muted, #8c5a47);
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s;
+}
+.tour-close-btn:hover {
+  color: #d9534f;
+}
+.tour-tooltip p {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text-main, #3e3025);
+  margin: 0;
+}
+.tour-tooltip-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+#tour-step-counter {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--text-muted);
+}
+.tour-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+.tour-arrow.arrow-top {
+  border-width: 0 10px 10px 10px;
+  border-color: transparent transparent var(--border-color, #8c5a47) transparent;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.tour-arrow.arrow-bottom {
+  border-width: 10px 10px 0 10px;
+  border-color: var(--border-color, #8c5a47) transparent transparent transparent;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.tour-arrow.arrow-left {
+  border-width: 10px 10px 10px 0;
+  border-color: transparent var(--border-color, #8c5a47) transparent transparent;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.tour-arrow.arrow-right {
+  border-width: 10px 0 10px 10px;
+  border-color: transparent transparent transparent var(--border-color, #8c5a47);
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.tour-highlighted {
+  position: relative !important;
+  z-index: 999997 !important;
+  pointer-events: none !important;
+  box-shadow: 0 0 0 9999px rgba(26, 15, 8, 0.45), 0 0 15px 5px var(--primary, #8c5a47) !important;
+  border-radius: 8px;
+  animation: tour-pulse 2s infinite ease-in-out;
+}
+@keyframes tour-pulse {
+  0% { box-shadow: 0 0 0 9999px rgba(26, 15, 8, 0.45), 0 0 10px 3px var(--primary, #8c5a47); }
+  50% { box-shadow: 0 0 0 9999px rgba(26, 15, 8, 0.45), 0 0 20px 8px var(--primary, #8c5a47); }
+  100% { box-shadow: 0 0 0 9999px rgba(26, 15, 8, 0.45), 0 0 10px 3px var(--primary, #8c5a47); }
+}
+
+
 
 
 

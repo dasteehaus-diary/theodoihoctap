@@ -3922,6 +3922,17 @@ function importAllData(jsonContent) {
 //  SETTINGS & BOUTIQUE (TAB 5)
 // =============================================
 function initSettings(){
+  const tourBtn = document.getElementById('settings-tour-btn');
+  if (tourBtn) {
+    tourBtn.addEventListener('click', () => {
+      const dashBtn = document.querySelector('[data-tab="dashboard"]');
+      if (dashBtn) dashBtn.click();
+      setTimeout(() => {
+        if (typeof startOnboardingTour === 'function') startOnboardingTour();
+      }, 300);
+    });
+  }
+
   document.getElementById('settings-save-goal-btn').addEventListener('click',()=>{
     const v=parseInt(document.getElementById('settings-daily-goal').value);
     if(isNaN(v)||v<5){
@@ -6803,6 +6814,12 @@ window.closeWelcomeLetter = function() {
     setTimeout(() => {
       overlay.classList.add('hidden');
       overlay.style.opacity = '1';
+      // Auto-trigger onboarding tour if never seen before
+      if (localStorage.getItem('hasSeenOnboardingTour') !== 'true') {
+        setTimeout(() => {
+          if (typeof startOnboardingTour === 'function') startOnboardingTour();
+        }, 600);
+      }
     }, 500);
   }
   if (typeof window.playPaperRustleSound === 'function') {
@@ -7091,6 +7108,182 @@ function triggerSupabaseUploadDebounced() {
   if (supabaseSyncTimeout) clearTimeout(supabaseSyncTimeout);
   supabaseSyncTimeout = setTimeout(triggerSupabaseUpload, 1500);
 }
+
+// =============================================
+//  INTERACTIVE ONBOARDING TOUR
+// =============================================
+const TOUR_STEPS = [
+  {
+    element: '.sidebar',
+    title: 'Thanh Điều Hướng 🌸',
+    text: 'Đây là nơi chị di chuyển giữa các phòng chức năng: Xem Thống kê, Tập trung ủ trà, Viết nhật ký, Đọc sách và vào Cửa hàng.',
+    position: 'right'
+  },
+  {
+    element: '.dashboard-grid',
+    title: 'Phòng Trà Lịch Sử 🍵',
+    text: 'Bảng điều khiển trung tâm hiển thị tiến trình học tập hôm nay, số đồng xu tích lũy và danh sách việc cần làm (To-Do).',
+    position: 'bottom'
+  },
+  {
+    element: '[data-tab="timer"]',
+    title: 'Ủ Trà & Tập Trung ⏳',
+    text: 'Bấm vào đây để chọn túi trà, mở nhạc Ambient thư giãn và tập trung học tập theo phương pháp Pomodoro cổ điển.',
+    position: 'right'
+  },
+  {
+    element: '[data-tab="diary"]',
+    title: 'Nhật Ký Niêm Phong ✒️',
+    text: 'Nơi viết nhật ký học tập mỗi ngày và niêm phong lại bằng dấu sáp nóng nghệ thuật để lưu trữ kỷ niệm.',
+    position: 'right'
+  },
+  {
+    element: '[data-tab="reading"]',
+    title: 'Góc Đọc Lese-Ecke 📚',
+    text: 'Không gian đọc sách ấm cúng. Chị có thể tải lên tệp sách Epub/Text để vừa đọc, vừa tra từ và ghi chú.',
+    position: 'right'
+  },
+  {
+    element: '[data-tab="settings"]',
+    title: 'Tiệm Trà & Cài Đặt 🏪',
+    text: 'Dùng đồng xu tích lũy mua thêm tách trà, nhạc mới trong cửa hàng và thiết lập tài khoản Supabase cho bạn bè cùng dùng.',
+    position: 'right'
+  }
+];
+
+let currentTourStep = 0;
+
+function startOnboardingTour() {
+  currentTourStep = 0;
+  const overlay = document.getElementById('app-tour-overlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    showTourStep(currentTourStep);
+  }
+  
+  const nextBtn = document.getElementById('tour-next-btn');
+  const skipBtn = document.getElementById('tour-skip-btn');
+  const closeXBtn = document.getElementById('tour-close-x-btn');
+
+  if (nextBtn && !nextBtn.dataset.listener) {
+    nextBtn.dataset.listener = "true";
+    nextBtn.addEventListener('click', () => {
+      currentTourStep++;
+      if (currentTourStep < TOUR_STEPS.length) {
+        showTourStep(currentTourStep);
+      } else {
+        finishTour();
+      }
+    });
+  }
+
+  if (skipBtn && !skipBtn.dataset.listener) {
+    skipBtn.dataset.listener = "true";
+    skipBtn.addEventListener('click', skipTour);
+  }
+
+  if (closeXBtn && !closeXBtn.dataset.listener) {
+    closeXBtn.dataset.listener = "true";
+    closeXBtn.addEventListener('click', skipTour);
+  }
+}
+
+function showTourStep(index) {
+  const step = TOUR_STEPS[index];
+  if (!step) return;
+
+  const targetEl = document.querySelector(step.element);
+  if (!targetEl) {
+    currentTourStep++;
+    if (currentTourStep < TOUR_STEPS.length) {
+      showTourStep(currentTourStep);
+    } else {
+      finishTour();
+    }
+    return;
+  }
+
+  document.querySelectorAll('.tour-highlighted').forEach(el => {
+    el.classList.remove('tour-highlighted');
+  });
+
+  if (targetEl) {
+    targetEl.classList.add('tour-highlighted');
+  }
+
+  document.getElementById('tour-step-title').textContent = step.title;
+  document.getElementById('tour-step-text').textContent = step.text;
+  document.getElementById('tour-step-counter').textContent = `${index + 1}/${TOUR_STEPS.length}`;
+
+  const nextBtn = document.getElementById('tour-next-btn');
+  if (nextBtn) {
+    nextBtn.textContent = (index === TOUR_STEPS.length - 1) ? 'Hoàn tất' : 'Tiếp theo';
+  }
+
+  if (targetEl) {
+    setTimeout(() => {
+      positionTourTooltip(targetEl, step.position);
+    }, 50);
+  }
+}
+
+function positionTourTooltip(element, position) {
+  const rect = element.getBoundingClientRect();
+  const tooltip = document.getElementById('app-tour-tooltip');
+  const arrow = tooltip.querySelector('.tour-arrow');
+  
+  let top = 0;
+  let left = 0;
+  const margin = 15;
+
+  if (position === 'right') {
+    top = rect.top + (rect.height / 2) - (tooltip.offsetHeight / 2);
+    left = rect.right + margin;
+    arrow.className = 'tour-arrow arrow-left';
+  } else if (position === 'bottom') {
+    top = rect.bottom + margin;
+    left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2);
+    arrow.className = 'tour-arrow arrow-top';
+  } else if (position === 'left') {
+    top = rect.top + (rect.height / 2) - (tooltip.offsetHeight / 2);
+    left = rect.left - tooltip.offsetWidth - margin;
+    arrow.className = 'tour-arrow arrow-right';
+  } else {
+    top = rect.top - tooltip.offsetHeight - margin;
+    left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2);
+    arrow.className = 'tour-arrow arrow-bottom';
+  }
+
+  if (left < 10) left = 10;
+  if (left + tooltip.offsetWidth > window.innerWidth - 10) {
+    left = window.innerWidth - tooltip.offsetWidth - 10;
+  }
+  if (top < 10) top = 10;
+  if (top + tooltip.offsetHeight > window.innerHeight - 10) {
+    top = window.innerHeight - tooltip.offsetHeight - 10;
+  }
+
+  tooltip.style.top = top + 'px';
+  tooltip.style.left = left + 'px';
+}
+
+function skipTour() {
+  finishTour();
+}
+
+function finishTour() {
+  const overlay = document.getElementById('app-tour-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+  }
+  document.querySelectorAll('.tour-highlighted').forEach(el => {
+    el.classList.remove('tour-highlighted');
+  });
+  localStorage.setItem('hasSeenOnboardingTour', 'true');
+  
+  if (typeof playSynthChime === 'function') playSynthChime();
+}
+
 
 
 

@@ -1789,7 +1789,8 @@ function initSunbeams() {
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
   // Register Service Worker for PWA
-  if ('serviceWorker' in navigator) {
+  // Register Service Worker for PWA (Only on secure HTTPS origins or localhost)
+  if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     navigator.serviceWorker.register('./service-worker.js')
       .then(reg => console.log('Service Worker registered:', reg.scope))
       .catch(err => console.warn('Service Worker registration failed:', err));

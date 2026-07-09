@@ -718,6 +718,43 @@ function loadState(){
     appState.cleanedKalligraphie = true;
   }
   
+  // Data Migration: Map old subjects to tags in To-Dos and Study Sessions
+  if (Array.isArray(appState.todos)) {
+    let migrated = false;
+    appState.todos.forEach(todo => {
+      if (todo.subjectId && !todo.tag) {
+        const sub = appState.subjects.find(s => s.id === todo.subjectId) || { name: 'Chung' };
+        todo.tag = sub.name.replace(/#/g, '').trim();
+        delete todo.subjectId;
+        migrated = true;
+      }
+    });
+    if (migrated) console.log("Migrated To-Do subjects to tags.");
+  }
+  if (Array.isArray(appState.studySessions)) {
+    let migrated = false;
+    appState.studySessions.forEach(session => {
+      if (session.subjectId && !session.tag) {
+        const sub = appState.subjects.find(s => s.id === session.subjectId) || { name: 'Chung' };
+        session.tag = sub.name.replace(/#/g, '').trim();
+        delete session.subjectId;
+        migrated = true;
+      }
+    });
+    if (migrated) console.log("Migrated Study Sessions subjects to tags.");
+  // Rollover unfinished tasks to today
+  if (Array.isArray(appState.todos)) {
+    const todayStr = getLocalDateString();
+    let rolledOver = false;
+    appState.todos.forEach(todo => {
+      if (!todo.completed && todo.date && todo.date < todayStr) {
+        todo.date = todayStr;
+        rolledOver = true;
+      }
+    });
+    if (rolledOver) console.log("Rolled over unfinished tasks to today.");
+  }
+
   saveState();
   applyTheme(appState.selectedTheme);
   applySkin(appState.selectedSkin);
@@ -2070,6 +2107,16 @@ function isDateInThisWeek(dateStr) {
   return diffDays >= -7 && diffDays <= 7;
 }
 
+function getPastelColorForTag(tag) {
+  if (!tag) return 'var(--bg-card)';
+  let hash = 0;
+  for (let i = 0; i < tag.length; i++) {
+    hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const h = Math.abs(hash) % 360;
+  return `hsl(${h}, 55%, 94%)`;
+}
+
 function renderDashboardTodos(){
   const todayStr=getLocalDateString();
   const container=document.getElementById('dash-todo-list');
@@ -2091,10 +2138,8 @@ function renderDashboardTodos(){
   filtered.forEach(todo=>{
     const li=document.createElement('li');
     li.className=`todo-item ${todo.completed?'completed':''}`;
-    li.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:0.65rem 0.75rem; margin-bottom:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card);';
-    
-    const sub = appState.subjects.find(s => s.id === todo.subjectId) || { name: 'Chưa phân loại', color: '#eae1d2' };
-    const starHTML = '<span style="color:var(--gold); font-size:1.05rem; letter-spacing:1px; text-shadow:0 1px 0 rgba(255,255,255,0.4);">' + '★'.repeat(todo.priority || 1) + '</span>';
+    const bgColor = todo.tag ? getPastelColorForTag(todo.tag) : 'var(--bg-card)';
+    li.style.cssText = `display:flex; align-items:center; justify-content:space-between; padding:0.65rem 0.75rem; margin-bottom:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:${bgColor};`;
     
     let dueHTML = '';
     if (todo.dueDate) {
@@ -2102,23 +2147,28 @@ function renderDashboardTodos(){
       dueHTML = `<span style="font-size:0.7rem; padding:1px 4px; border-radius:3px; margin-left:0.5rem; ${isOverdue ? 'background-color:var(--danger); color:white; font-weight:700;' : 'background-color:var(--bg-sidebar); color:var(--text-muted);'}">Hạn: ${todo.dueDate} ${isOverdue ? '[Quá Hạn]' : ''}</span>`;
     }
 
+    let tagHTML = '';
+    if (todo.tag) {
+      tagHTML = `<span style="font-size:0.65rem; background-color:rgba(0,0,0,0.05); border:1px solid rgba(0,0,0,0.1); padding:2px 5px; border-radius:4px; font-weight:700; color:var(--text-main);">${todo.tag}</span>`;
+    }
+
     const learnBtnHTML = !todo.completed 
       ? `<button class="btn btn-secondary btn-sm btn-todo-learn" data-id="${todo.id}" style="padding:0.25rem 0.5rem; font-size:0.75rem; display:inline-flex; align-items:center; gap:0.25rem; font-weight:700; color:var(--primary); margin-left:auto; margin-right:0.5rem;"><i data-lucide="play" style="width:12px;height:12px;"></i> Học</button>`
       : '';
+    
     li.innerHTML = `
       <div class="todo-item-left" data-id="${todo.id}" style="display:flex; align-items:center; gap:0.5rem; flex:1; cursor:pointer;">
         <span class="todo-checkbox-container">${window.getTodoFlowerSVG(todo.completed)}</span>
         <div style="display:flex; flex-direction:column; gap:0.15rem;">
           <span class="todo-text" style="font-weight:700; font-size:0.9rem; color:var(--text-main);">${todo.text}</span>
           <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
-            <span style="font-size:0.65rem; background-color:${sub.color}33; color:${sub.color}; border:1px solid ${sub.color}aa; padding:1px 4px; border-radius:3px; font-weight:700;">${sub.name}</span>
-            <span style="font-size:0.65rem; color:var(--amber); font-weight:700;">${starHTML}</span>
+            ${tagHTML}
             ${dueHTML}
           </div>
         </div>
       </div>
       ${learnBtnHTML}
-      <button class="btn-todo-delete" data-id="${todo.id}" style="background:none; border:none; cursor:pointer; color:var(--text-muted);"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
+      <button class="btn-todo-delete" data-id="${todo.id}" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:0.2rem; display:flex; align-items:center; justify-content:center;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
     `;
 
     li.querySelector('.todo-item-left').addEventListener('click',(e)=>toggleTodo(todo.id, e));
@@ -2139,8 +2189,11 @@ function addDashboardTodo(){
   const text=input.value.trim();
   if(!text)return;
   
-  const subId = document.getElementById('todo-input-subject').value || appState.subjects[0]?.id || '';
-  const prio = parseInt(document.getElementById('todo-input-priority').value) || 1;
+  const rawTag = document.getElementById('todo-input-tag').value.trim();
+  let tag = '';
+  if (rawTag) {
+    tag = rawTag.startsWith('#') ? rawTag : '#' + rawTag;
+  }
   const due = document.getElementById('todo-input-due').value || '';
   
   appState.todos.push({
@@ -2148,13 +2201,13 @@ function addDashboardTodo(){
     text: text,
     completed: false,
     date: getLocalDateString(),
-    subjectId: subId,
-    priority: prio,
+    tag: tag,
     dueDate: due
   });
   
   saveState();
   input.value='';
+  document.getElementById('todo-input-tag').value = '';
   document.getElementById('todo-input-due').value = '';
   document.getElementById('dash-todo-input-row').classList.add('hidden');
   refreshDashboard();
@@ -2620,13 +2673,17 @@ function fullResetTimer() {
 }
 
 function saveStudySession(durationSecs, type, teaBag) {
-  const subId = document.getElementById('timer-subject').value;
+  const rawTag = document.getElementById('timer-focus-tag').value.trim();
+  let tag = 'Chung';
+  if (rawTag) {
+    tag = rawTag.startsWith('#') ? rawTag : '#' + rawTag;
+  }
   const todayStr = getLocalDateString();
 
   appState.studySessions.push({
     id: 'session-' + Date.now(),
     date: todayStr,
-    subjectId: subId,
+    tag: tag,
     durationSeconds: durationSecs,
     type: type,
     taskId: activeTaskId
@@ -2928,10 +2985,10 @@ window.getTodoFlowerSVG = function(completed) {
   }
 };
 
-// --- Timer todo ---
 function renderTimerTodoList() {
   const todayStr = getLocalDateString();
   const container = document.getElementById('timer-todo-list');
+  if (!container) return;
   container.innerHTML = '';
   const todos = appState.todos.filter(t => t.date === todayStr);
   if (todos.length === 0) {
@@ -2941,12 +2998,32 @@ function renderTimerTodoList() {
   todos.forEach(todo => {
     const li = document.createElement('li');
     li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+    const bgColor = todo.tag ? getPastelColorForTag(todo.tag) : 'var(--bg-card)';
+    li.style.cssText = `display:flex; align-items:center; justify-content:space-between; padding:0.65rem 0.75rem; margin-bottom:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:${bgColor}; width:100%;`;
+    
+    let dueHTML = '';
+    if (todo.dueDate) {
+      const isOverdue = !todo.completed && todo.dueDate < todayStr;
+      dueHTML = `<span style="font-size:0.7rem; padding:1px 4px; border-radius:3px; margin-left:0.5rem; ${isOverdue ? 'background-color:var(--danger); color:white; font-weight:700;' : 'background-color:var(--bg-sidebar); color:var(--text-muted);'}">Hạn: ${todo.dueDate} ${isOverdue ? '[Quá Hạn]' : ''}</span>`;
+    }
+
+    let tagHTML = '';
+    if (todo.tag) {
+      tagHTML = `<span style="font-size:0.65rem; background-color:rgba(0,0,0,0.05); border:1px solid rgba(0,0,0,0.1); padding:2px 5px; border-radius:4px; font-weight:700; color:var(--text-main);">${todo.tag}</span>`;
+    }
+
     const flowerSvg = window.getTodoFlowerSVG(todo.completed);
     
     li.innerHTML = `
-      <div class="todo-item-left" data-id="${todo.id}" style="display:flex; align-items:center; gap:0.5rem; flex:1;">
+      <div class="todo-item-left" data-id="${todo.id}" style="display:flex; align-items:center; gap:0.5rem; flex:1; cursor:pointer;">
         <span class="todo-checkbox-container">${flowerSvg}</span>
-        <span class="todo-text">${todo.text}</span>
+        <div style="display:flex; flex-direction:column; gap:0.15rem;">
+          <span class="todo-text" style="font-weight:700; font-size:0.9rem; color:var(--text-main);">${todo.text}</span>
+          <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap;">
+            ${tagHTML}
+            ${dueHTML}
+          </div>
+        </div>
       </div>
       <button class="btn-todo-delete" data-id="${todo.id}" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding: 0.2rem; display: flex; align-items: center; justify-content: center;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
     `;
@@ -2959,7 +3036,35 @@ function renderTimerTodoList() {
   });
   lucide.createIcons();
 }
-function addTimerTodo(){const input=document.getElementById('timer-new-todo');const text=input.value.trim();if(!text)return;appState.todos.push({id:'todo-'+Date.now(),text,completed:false,date:getLocalDateString()});saveState();input.value='';renderTimerTodoList();refreshDashboard();checkAndLogActivityToday();}
+function addTimerTodo(){
+  const input=document.getElementById('timer-new-todo');
+  const text=input.value.trim();
+  if(!text)return;
+  
+  const rawTag = document.getElementById('timer-todo-tag').value.trim();
+  let tag = '';
+  if (rawTag) {
+    tag = rawTag.startsWith('#') ? rawTag : '#' + rawTag;
+  }
+  const due = document.getElementById('timer-todo-due').value || '';
+  
+  appState.todos.push({
+    id: 'todo-' + Date.now(),
+    text: text,
+    completed: false,
+    date: getLocalDateString(),
+    tag: tag,
+    dueDate: due
+  });
+  
+  saveState();
+  input.value='';
+  document.getElementById('timer-todo-tag').value = '';
+  document.getElementById('timer-todo-due').value = '';
+  renderTimerTodoList();
+  refreshDashboard();
+  checkAndLogActivityToday();
+}
 
 
 // =============================================
@@ -6114,22 +6219,23 @@ window.playBloomSound = function() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const now = audioCtx.currentTime;
     
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(800, now);
-    osc.frequency.exponentialRampToValueAtTime(1600, now + 0.4);
-    
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.18, now + 0.08);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
-    
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    
-    osc.start(now);
-    osc.stop(now + 0.5);
+    [1046.50, 1318.51].forEach((f, idx) => {
+      const delay = idx * 0.08;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, now + delay);
+      
+      gain.gain.setValueAtTime(0, now + delay);
+      gain.gain.linearRampToValueAtTime(0.12, now + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.35);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.38);
+    });
   } catch(e){}
 };
 

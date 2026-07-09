@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tiemtra-v5';
+const CACHE_NAME = 'tiemtra-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -29,6 +29,9 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Only handle http and https requests to prevent Chrome extension or local file failures
+  if (!e.request.url.startsWith('http')) return;
+
   // Bypass service worker for audio files to avoid Range request/206 status issues
   if (e.request.url.match(/\.(mp3|ogg|wav)$/i)) {
     return; // Let the browser handle audio requests directly from network

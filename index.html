@@ -2,6 +2,14 @@
 <html lang="vi" data-theme="light">
 <head>
   <meta charset="UTF-8">
+  <script>
+    window.addEventListener('error', function(e) {
+      const errDiv = document.createElement('div');
+      errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:rgba(220,53,69,0.95);color:white;padding:1.5rem;font-family:monospace;font-size:14px;z-index:999999;box-shadow:0 4px 10px rgba(0,0,0,0.3);line-height:1.5;overflow-y:auto;max-height:50%;';
+      errDiv.innerHTML = '<strong>[LỖI HỆ THỐNG]:</strong> ' + e.message + '<br><small>Tệp: ' + e.filename + ' - Dòng: ' + e.lineno + ':' + e.colno + '</small><br><br><button onclick="this.parentElement.remove()" style="background:white;color:#dc3545;border:none;padding:5px 10px;border-radius:4px;font-weight:bold;cursor:pointer;">Đóng thông báo</button>';
+      document.body.appendChild(errDiv);
+    });
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json">
   <title>Das TeeHaus & Tagebuch - Nhật ký & Học tập cổ điển</title>

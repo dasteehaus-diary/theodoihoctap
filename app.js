@@ -6908,9 +6908,9 @@ function initSupabaseAuth() {
     });
   }
 
-  // Load configured keys from localStorage
-  const savedUrl = localStorage.getItem('supabase_url') || "";
-  const savedKey = localStorage.getItem('supabase_anon_key') || "";
+  // Load configured keys from localStorage or default to hardcoded credentials
+  const savedUrl = localStorage.getItem('supabase_url') || "https://swuupbyfvacotihivosf.supabase.co";
+  const savedKey = localStorage.getItem('supabase_anon_key') || "sb_publishable_8eNltyK2KQRBEo5WWvf2_g_kp7NlD8n";
   
   if (urlInput) urlInput.value = savedUrl;
   if (keyInput) keyInput.value = savedKey;

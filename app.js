@@ -6923,19 +6923,30 @@ window.closeWelcomeLetter = function() {
   if (overlay) {
     overlay.style.opacity = '0';
     setTimeout(() => {
-      overlay.classList.add('hidden');
-      overlay.style.opacity = '1';
-      // Auto-trigger onboarding tour if never seen before
-      if (localStorage.getItem('hasSeenOnboardingTour') !== 'true') {
-        setTimeout(() => {
-          if (typeof startOnboardingTour === 'function') startOnboardingTour();
-        }, 600);
+      try {
+        overlay.classList.add('hidden');
+        overlay.style.opacity = '1';
+      } catch (e) {
+        console.error("Failed to hide welcome letter", e);
+      }
+      
+      try {
+        // Auto-trigger onboarding tour if never seen before
+        if (localStorage.getItem('hasSeenOnboardingTour') !== 'true') {
+          setTimeout(() => {
+            if (typeof startOnboardingTour === 'function') startOnboardingTour();
+          }, 600);
+        }
+      } catch (e) {
+        console.warn("localStorage or tour startup blocked:", e);
       }
     }, 500);
   }
-  if (typeof window.playPaperRustleSound === 'function') {
-    window.playPaperRustleSound();
-  }
+  try {
+    if (typeof window.playPaperRustleSound === 'function') {
+      window.playPaperRustleSound();
+    }
+  } catch (e) {}
 };
 
 window.triggerWaxSealAnimation = function(waxSealId) {
@@ -7390,7 +7401,11 @@ function finishTour() {
   document.querySelectorAll('.tour-highlighted').forEach(el => {
     el.classList.remove('tour-highlighted');
   });
-  localStorage.setItem('hasSeenOnboardingTour', 'true');
+  try {
+    localStorage.setItem('hasSeenOnboardingTour', 'true');
+  } catch (e) {
+    console.warn("Could not save tour completion state:", e);
+  }
   
   if (typeof playSynthChime === 'function') playSynthChime();
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tiemtra-v4';
+const CACHE_NAME = 'tiemtra-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -29,7 +29,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Network-first strategy: try to fetch from network first, fall back to cache if offline
+  // Bypass service worker for audio files to avoid Range request/206 status issues
+  if (e.request.url.match(/\.(mp3|ogg|wav)$/i)) {
+    return; // Let the browser handle audio requests directly from network
+  }
+
   e.respondWith(
     fetch(e.request)
       .then(response => {

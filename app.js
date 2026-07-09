@@ -742,6 +742,7 @@ function loadState(){
       }
     });
     if (migrated) console.log("Migrated Study Sessions subjects to tags.");
+  }
   // Rollover unfinished tasks to today
   if (Array.isArray(appState.todos)) {
     const todayStr = getLocalDateString();
